@@ -1,0 +1,33 @@
+{
+    "name": "quanta/array-type-check",
+    "type": "library",
+    "description": "PHP associative array type check",
+    "keywords": [],
+    "license": "MIT",
+    "homepage": "https://github.com/quantaphp/array-type-check",
+    "support": {
+        "issues": "https://github.com/quantaphp/array-type-check/issues",
+        "source": "https://github.com/quantaphp/array-type-check"
+    },
+    "authors": [
+        {
+            "name": "pmall",
+            "email": "pierre.mallinjoud@gmail.com"
+        }
+    ],
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": ">=7.0"
+    },
+    "require-dev": {
+        "kahlan/kahlan": "^4.0",
+        "phpstan/phpstan": "^0.11.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Quanta\\": "src"
+        }
+    }
+}
