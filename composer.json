@@ -22,6 +22,7 @@
         "php": ">=7.0"
     },
     "require-dev": {
+        "eloquent/phony-kahlan": "^2.0",
         "kahlan/kahlan": "^4.0",
         "phpstan/phpstan": "^0.11.2"
     },
