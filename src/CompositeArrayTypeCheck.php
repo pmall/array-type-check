@@ -2,8 +2,8 @@
 
 namespace Quanta;
 
+use Quanta\ArrayTypeCheck\Type;
 use Quanta\ArrayTypeCheck\Success;
-use Quanta\ArrayTypeCheck\TypeCheck;
 use Quanta\ArrayTypeCheck\ResultInterface;
 
 final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
@@ -13,10 +13,10 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
     public static function result($value, array $schema): ResultInterface
     {
         foreach ($schema as $path => $type) {
-            $checks[] = new ArrayTypeCheck(new TypeCheck($type), ...explode('.', $path));
+            $checks[] = new ArrayTypeCheck(new Type($type), ...explode('.', $path));
         }
 
-        return (new CompositeArrayTypeCheck(...($checks ?? [])))->validated($value);
+        return (new CompositeArrayTypeCheck(...($checks ?? [])))->checked($value);
     }
 
     public function __construct(ArrayTypeCheckInterface ...$checks)
@@ -24,10 +24,10 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
         $this->checks = $checks;
     }
 
-    public function validated($value): ResultInterface
+    public function checked($value): ResultInterface
     {
         foreach ($this->checks as $check) {
-            $result = $check->validated($value);
+            $result = $check->checked($value);
 
             if (! $result->isValid()) {
                 return $result;

@@ -5,11 +5,11 @@ use function Eloquent\Phony\Kahlan\mock;
 use Quanta\ArrayTypeCheck;
 use Quanta\ArrayTypeCheckInterface;
 use Quanta\ArrayTypeCheck\Success;
+use Quanta\ArrayTypeCheck\Type;
 use Quanta\ArrayTypeCheck\Failure;
-use Quanta\ArrayTypeCheck\TypeCheck;
 use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\ResultWithKey;
-use Quanta\ArrayTypeCheck\TypeCheckInterface;
+use Quanta\ArrayTypeCheck\TypeInterface;
 
 describe('ArrayTypeCheck::result()', function () {
 
@@ -34,7 +34,7 @@ describe('ArrayTypeCheck::result()', function () {
             $test = ArrayTypeCheck::result(['key' => [true, 1, true]], 'boolean', 'key');
 
             expect($test)->toEqual(ResultWithKey::nested(
-                new Failure(1, new TypeCheck('boolean'), '1'), 'key'
+                new Failure(1, new Type('boolean'), '1'), 'key'
             ));
 
         });
@@ -47,7 +47,7 @@ describe('ArrayTypeCheck', function () {
 
     beforeEach(function () {
 
-        $this->type = mock(TypeCheckInterface::class);
+        $this->type = mock(TypeInterface::class);
 
         $this->type->isValid->with('valid1')->returns(true);
         $this->type->isValid->with('valid2')->returns(true);
@@ -75,7 +75,7 @@ describe('ArrayTypeCheck', function () {
 
                 it('should return a failure', function () {
 
-                    $test = $this->check->validated(1);
+                    $test = $this->check->checked(1);
 
                     expect($test)->toEqual(new RootFailure(1));
 
@@ -89,7 +89,7 @@ describe('ArrayTypeCheck', function () {
 
                     it('should return a success', function () {
 
-                        $test = $this->check->validated([]);
+                        $test = $this->check->checked([]);
 
                         expect($test)->toEqual(new Success([]));
 
@@ -103,7 +103,7 @@ describe('ArrayTypeCheck', function () {
 
                         it('should return a success', function () {
 
-                            $test = $this->check->validated(['valid1', 'valid2', 'valid1']);
+                            $test = $this->check->checked(['valid1', 'valid2', 'valid1']);
 
                             expect($test)->toEqual(new Success(['valid1', 'valid2', 'valid1']));
 
@@ -115,7 +115,7 @@ describe('ArrayTypeCheck', function () {
 
                         it('should return a failure', function () {
 
-                            $test = $this->check->validated(['valid1', 'invalid', 'valid1']);
+                            $test = $this->check->checked(['valid1', 'invalid', 'valid1']);
 
                             expect($test)->toEqual(new Failure('invalid', $this->type->get(), '1'));
 
@@ -153,7 +153,7 @@ describe('ArrayTypeCheck', function () {
 
                     it('should return a failure', function () {
 
-                        $test = $this->check->validated(1);
+                        $test = $this->check->checked(1);
 
                         expect($test)->toEqual(new RootFailure(1));
 
@@ -167,7 +167,7 @@ describe('ArrayTypeCheck', function () {
 
                         it('should return a success', function () {
 
-                            $test = $this->check->validated(['key1' => []]);
+                            $test = $this->check->checked(['key1' => []]);
 
                             expect($test)->toEqual(ResultWithKey::nested(
                                 new Success([]), 'key1', 'key2', 'key3'
@@ -183,7 +183,7 @@ describe('ArrayTypeCheck', function () {
 
                             it('should return a success', function () {
 
-                                $test = $this->check->validated([
+                                $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
                                             'key3' => [],
@@ -205,7 +205,7 @@ describe('ArrayTypeCheck', function () {
 
                                 it('should return a success', function () {
 
-                                    $test = $this->check->validated([
+                                    $test = $this->check->checked([
                                         'key1' => [
                                             'key2' => [
                                                 'key3' => ['valid1', 'valid2', 'valid1'],
@@ -225,7 +225,7 @@ describe('ArrayTypeCheck', function () {
 
                                 it('should return a failure', function () {
 
-                                    $test = $this->check->validated([
+                                    $test = $this->check->checked([
                                         'key1' => [
                                             'key2' => [
                                                 'key3' => ['valid1', 'invalid', 'valid1'],
@@ -271,7 +271,7 @@ describe('ArrayTypeCheck', function () {
 
                     it('should return a failure', function () {
 
-                        $test = $this->check->validated(1);
+                        $test = $this->check->checked(1);
 
                         expect($test)->toEqual(new RootFailure(1));
 
@@ -285,7 +285,7 @@ describe('ArrayTypeCheck', function () {
 
                         it('should return a success', function () {
 
-                            $test = $this->check->validated(['key1' => []]);
+                            $test = $this->check->checked(['key1' => []]);
 
                             expect($test)->toEqual(ResultWithKey::nested(
                                 new Success([]), 'key1', 'key2'
@@ -301,7 +301,7 @@ describe('ArrayTypeCheck', function () {
 
                             it('should return a success', function () {
 
-                                $test = $this->check->validated([
+                                $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
                                             ['key3' => []],
@@ -331,7 +331,7 @@ describe('ArrayTypeCheck', function () {
 
                                 it('should return a success', function () {
 
-                                    $test = $this->check->validated([
+                                    $test = $this->check->checked([
                                         'key1' => [
                                             'key2' => [
                                                 ['key3' => ['valid1', 'valid2', 'valid1']],
@@ -359,7 +359,7 @@ describe('ArrayTypeCheck', function () {
 
                                 it('should return a failure', function () {
 
-                                    $test = $this->check->validated([
+                                    $test = $this->check->checked([
                                         'key1' => [
                                             'key2' => [
                                                 ['key3' => ['valid1', 'valid2', 'valid1']],

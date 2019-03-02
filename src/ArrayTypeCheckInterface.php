@@ -7,9 +7,9 @@ use Quanta\ArrayTypeCheck\ResultInterface;
 interface ArrayTypeCheckInterface
 {
     /**
-     * Return an array type check result from the given value.
+     * Return an array type check result for the given value.
      *
      * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    public function validated($value): ResultInterface;
+    public function checked($value): ResultInterface;
 }

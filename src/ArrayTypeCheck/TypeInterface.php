@@ -2,9 +2,9 @@
 
 namespace Quanta\ArrayTypeCheck;
 
-interface TypeCheckInterface
+interface TypeInterface
 {
-    public function expected(): string;
+    public function str(): string;
 
     public function isValid($value): bool;
 }

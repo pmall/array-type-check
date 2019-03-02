@@ -2,7 +2,7 @@
 
 namespace Quanta\ArrayTypeCheck;
 
-final class TypeCheck implements TypeCheckInterface
+final class Type implements TypeInterface
 {
     private $type;
 
@@ -11,7 +11,7 @@ final class TypeCheck implements TypeCheckInterface
         $this->type = $type;
     }
 
-    public function expected(): string
+    public function str(): string
     {
         return $this->type;
     }

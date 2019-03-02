@@ -10,7 +10,7 @@ final class Failure implements ResultInterface
 
     private $key;
 
-    public function __construct($given, TypeCheckInterface $type, string $key)
+    public function __construct($given, TypeInterface $type, string $key)
     {
         $this->given = $given;
         $this->type = $type;
@@ -29,7 +29,7 @@ final class Failure implements ResultInterface
 
     public function expected(): string
     {
-        return $this->type->expected();
+        return $this->type->str();
     }
 
     public function path(): array

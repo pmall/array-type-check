@@ -2,79 +2,79 @@
 
 namespace Quanta;
 
+use Quanta\ArrayTypeCheck\Type;
 use Quanta\ArrayTypeCheck\Success;
 use Quanta\ArrayTypeCheck\Failure;
-use Quanta\ArrayTypeCheck\TypeCheck;
 use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\ResultWithKey;
+use Quanta\ArrayTypeCheck\TypeInterface;
 use Quanta\ArrayTypeCheck\ResultInterface;
-use Quanta\ArrayTypeCheck\TypeCheckInterface;
 
 final class ArrayTypeCheck implements ArrayTypeCheckInterface
 {
     /**
-     * The expected type of the array values.
+     * The type all the array values are expected to have.
      *
-     * @var \Quanta\ArrayTypeCheck\TypeCheckInterface
+     * @var \Quanta\ArrayTypeCheck\TypeInterface
      */
     private $type;
 
     /**
-     * The sub keys.
+     * The sub key path where the array to type check is located.
      *
      * @var string[]
      */
-    private $keys;
+    private $path;
 
     /**
-     * Return the result of validating the given array against the given type
-     * and sub keys.
+     * Return the result of type checking the array located at the given sub key
+     * path against the given type.
      *
      * @param mixed     $value
      * @param string    $type
-     * @param string    ...$keys
+     * @param string    ...$path
      * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    public static function result($value, string $type, string ...$keys): ResultInterface
+    public static function result($value, string $type, string ...$path): ResultInterface
     {
-        return (new ArrayTypeCheck(new TypeCheck($type), ...$keys))->validated($value);
+        return (new ArrayTypeCheck(new Type($type), ...$path))->checked($value);
     }
 
     /**
      * Constructor.
      *
-     * @param \Quanta\ArrayTypeCheck\TypeCheckInterface $type
-     * @param string                                    ...$keys
+     * @param \Quanta\ArrayTypeCheck\TypeInterface  $type
+     * @param string                                ...$path
      */
-    public function __construct(TypeCheckInterface $type, string ...$keys)
+    public function __construct(TypeInterface $type, string ...$path)
     {
         $this->type = $type;
-        $this->keys = $keys;
+        $this->path = $path;
     }
 
     /**
      * @inheritdoc
      */
-    public function validated($value): ResultInterface
+    public function checked($value): ResultInterface
     {
         if (! is_array($value)) {
             return new RootFailure($value);
         }
 
-        if (count($this->keys) == 0) {
+        if (count($this->path) == 0) {
             return count($invalid = $this->invalidKeys($value)) == 0
                 ? new Success($value)
                 : new Failure($value[$invalid[0]], $this->type, (string) $invalid[0]);
         }
 
-        return $this->keys[0] == '*'
+        return $this->path[0] == '*'
             ? $this->composite($value)
             : $this->nested($value);
     }
 
     /**
-     * Return the keys of the given array associated to values of a different
-     * type than the expected one.
+     * Return the keys of the given array which are associated to a value not
+     * passing the type check.
      *
      * @param array $values
      * @return (int|string)[]
@@ -90,24 +90,23 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     }
 
     /**
-     * Return the result of the first key type check.
+     * Type check the first key of the sub key path.
      *
      * @param array $values
      * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
     private function nested(array $values): ResultInterface
     {
-        $key = $this->keys[0];
+        $key = $this->path[0];
         $value = $values[$key] ?? [];
 
-        $check = new ArrayTypeCheck($this->type, ...array_slice($this->keys, 1));
+        $check = new ArrayTypeCheck($this->type, ...array_slice($this->path, 1));
 
-        return new ResultWithKey($check->validated($value), $key);
+        return new ResultWithKey($check->checked($value), $key);
     }
 
     /**
-     * Return the result of a composite array type check on all the keys of the
-     * given array.
+     * Return the result of a composite type checking of the given array.
      *
      * @param array $values
      * @return \Quanta\ArrayTypeCheck\ResultInterface
@@ -118,10 +117,12 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
             $checks[] = new ArrayTypeCheck(
                 $this->type,
                 (string) $key,
-                ...array_slice($this->keys, 1)
+                ...array_slice($this->path, 1)
             );
         }
 
-        return (new CompositeArrayTypeCheck(...($checks ?? [])))->validated($values);
+        $check = new CompositeArrayTypeCheck(...($checks ?? []));
+
+        return $check->checked($values);
     }
 }
