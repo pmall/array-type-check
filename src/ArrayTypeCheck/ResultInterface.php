@@ -52,7 +52,7 @@ interface ResultInterface
      *
      * Should throw when isValid() returns true.
      *
-     * @param callable $callable
+     * @param callable $formatter
      * @return string
      */
     public function formatted(callable $formatter): string;
