@@ -8,7 +8,7 @@ use Quanta\ArrayTypeCheck\Success;
 use Quanta\ArrayTypeCheck\Type;
 use Quanta\ArrayTypeCheck\Failure;
 use Quanta\ArrayTypeCheck\RootFailure;
-use Quanta\ArrayTypeCheck\ResultWithKey;
+use Quanta\ArrayTypeCheck\NestedResult;
 use Quanta\ArrayTypeCheck\TypeInterface;
 
 describe('ArrayTypeCheck::result()', function () {
@@ -19,7 +19,7 @@ describe('ArrayTypeCheck::result()', function () {
 
             $test = ArrayTypeCheck::result(['key' => [true, false, true]], 'boolean', 'key');
 
-            expect($test)->toEqual(ResultWithKey::nested(
+            expect($test)->toEqual(NestedResult::nested(
                 new Success([true, false, true]), 'key'
             ));
 
@@ -33,7 +33,7 @@ describe('ArrayTypeCheck::result()', function () {
 
             $test = ArrayTypeCheck::result(['key' => [true, 1, true]], 'boolean', 'key');
 
-            expect($test)->toEqual(ResultWithKey::nested(
+            expect($test)->toEqual(NestedResult::nested(
                 new Failure(1, new Type('boolean'), '1'), 'key'
             ));
 
@@ -169,7 +169,7 @@ describe('ArrayTypeCheck', function () {
 
                             $test = $this->check->checked(['key1' => []]);
 
-                            expect($test)->toEqual(ResultWithKey::nested(
+                            expect($test)->toEqual(NestedResult::nested(
                                 new Success([]), 'key1', 'key2', 'key3'
                             ));
 
@@ -191,7 +191,7 @@ describe('ArrayTypeCheck', function () {
                                     ],
                                 ]);
 
-                                expect($test)->toEqual(ResultWithKey::nested(
+                                expect($test)->toEqual(NestedResult::nested(
                                     new Success([]), 'key1', 'key2', 'key3'
                                 ));
 
@@ -213,7 +213,7 @@ describe('ArrayTypeCheck', function () {
                                         ],
                                     ]);
 
-                                    expect($test)->toEqual(ResultWithKey::nested(
+                                    expect($test)->toEqual(NestedResult::nested(
                                         new Success(['valid1', 'valid2', 'valid1']), 'key1', 'key2', 'key3'
                                     ));
 
@@ -233,7 +233,7 @@ describe('ArrayTypeCheck', function () {
                                         ],
                                     ]);
 
-                                    expect($test)->toEqual(ResultWithKey::nested(
+                                    expect($test)->toEqual(NestedResult::nested(
                                         new Failure('invalid', $this->type->get(), '1'), 'key1', 'key2', 'key3'
                                     ));
 
@@ -287,7 +287,7 @@ describe('ArrayTypeCheck', function () {
 
                             $test = $this->check->checked(['key1' => []]);
 
-                            expect($test)->toEqual(ResultWithKey::nested(
+                            expect($test)->toEqual(NestedResult::nested(
                                 new Success([]), 'key1', 'key2'
                             ));
 
@@ -311,7 +311,7 @@ describe('ArrayTypeCheck', function () {
                                     ],
                                 ]);
 
-                                expect($test)->toEqual(ResultWithKey::nested(
+                                expect($test)->toEqual(NestedResult::nested(
                                     new Success([
                                         ['key3' => []],
                                         ['key3' => []],
@@ -341,7 +341,7 @@ describe('ArrayTypeCheck', function () {
                                         ],
                                     ]);
 
-                                    expect($test)->toEqual(ResultWithKey::nested(
+                                    expect($test)->toEqual(NestedResult::nested(
                                         new Success([
                                             ['key3' => ['valid1', 'valid2', 'valid1']],
                                             ['key3' => ['valid1', 'valid2', 'valid1']],
@@ -369,7 +369,7 @@ describe('ArrayTypeCheck', function () {
                                         ],
                                     ]);
 
-                                    expect($test)->toEqual(ResultWithKey::nested(
+                                    expect($test)->toEqual(NestedResult::nested(
                                         new Failure('invalid', $this->type->get(), '1'), 'key1', 'key2', '1', 'key3'
                                     ));
 

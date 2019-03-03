@@ -6,7 +6,7 @@ use Quanta\ArrayTypeCheck\Type;
 use Quanta\ArrayTypeCheck\Success;
 use Quanta\ArrayTypeCheck\Failure;
 use Quanta\ArrayTypeCheck\RootFailure;
-use Quanta\ArrayTypeCheck\ResultWithKey;
+use Quanta\ArrayTypeCheck\NestedResult;
 use Quanta\ArrayTypeCheck\TypeInterface;
 use Quanta\ArrayTypeCheck\ResultInterface;
 
@@ -102,7 +102,7 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
 
         $check = new ArrayTypeCheck($this->type, ...array_slice($this->path, 1));
 
-        return new ResultWithKey($check->checked($value), $key);
+        return new NestedResult($check->checked($value), $key);
     }
 
     /**
