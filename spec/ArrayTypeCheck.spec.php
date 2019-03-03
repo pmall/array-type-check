@@ -17,9 +17,9 @@ describe('ArrayTypeCheck::result()', function () {
 
         it('should return a success', function () {
 
-            $test = ArrayTypeCheck::result(['value', 'value', 'value'], 'string');
+            $test = ArrayTypeCheck::result(['valid', 'valid', 'valid'], 'string');
 
-            expect($test)->toEqual(new Success(['value', 'value', 'value']));
+            expect($test)->toEqual(new Success(['valid', 'valid', 'valid']));
 
         });
 
@@ -29,7 +29,7 @@ describe('ArrayTypeCheck::result()', function () {
 
         it('should return a failure', function () {
 
-            $test = ArrayTypeCheck::result(['value', 1, 'value'], 'string');
+            $test = ArrayTypeCheck::result(['valid', 1, 'valid'], 'string');
 
             expect($test)->toEqual(new Failure(1, new Type('string'), '1'));
 
@@ -45,8 +45,7 @@ describe('ArrayTypeCheck', function () {
 
         $this->type = mock(TypeInterface::class);
 
-        $this->type->isValid->with('valid1')->returns(true);
-        $this->type->isValid->with('valid2')->returns(true);
+        $this->type->isValid->with('valid')->returns(true);
         $this->type->isValid->with('invalid')->returns(false);
 
     });
@@ -65,7 +64,7 @@ describe('ArrayTypeCheck', function () {
 
         });
 
-        describe('->validated()', function () {
+        describe('->checked()', function () {
 
             context('when the given array is empty', function () {
 
@@ -85,9 +84,9 @@ describe('ArrayTypeCheck', function () {
 
                     it('should return a success', function () {
 
-                        $test = $this->check->checked(['valid1', 'valid2', 'valid1']);
+                        $test = $this->check->checked(['valid', 'valid', 'valid']);
 
-                        expect($test)->toEqual(new Success(['valid1', 'valid2', 'valid1']));
+                        expect($test)->toEqual(new Success(['valid', 'valid', 'valid']));
 
                     });
 
@@ -97,7 +96,7 @@ describe('ArrayTypeCheck', function () {
 
                     it('should return a failure', function () {
 
-                        $test = $this->check->checked(['valid1', 'invalid', 'valid1']);
+                        $test = $this->check->checked(['valid', 'invalid', 'valid']);
 
                         expect($test)->toEqual(new Failure('invalid', $this->type->get(), '1'));
 
@@ -127,7 +126,7 @@ describe('ArrayTypeCheck', function () {
 
             });
 
-            describe('->validated()', function () {
+            describe('->checked()', function () {
 
                 context('when given array does not contain all the sub keys', function () {
 
@@ -174,13 +173,13 @@ describe('ArrayTypeCheck', function () {
                                 $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
-                                            'key3' => ['valid1', 'valid2', 'valid1'],
+                                            'key3' => ['valid', 'valid', 'valid'],
                                         ],
                                     ],
                                 ]);
 
                                 expect($test)->toEqual(NestedResult::nested(
-                                    new Success(['valid1', 'valid2', 'valid1']), 'key1', 'key2', 'key3'
+                                    new Success(['valid', 'valid', 'valid']), 'key1', 'key2', 'key3'
                                 ));
 
                             });
@@ -194,7 +193,7 @@ describe('ArrayTypeCheck', function () {
                                 $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
-                                            'key3' => ['valid1', 'invalid', 'valid1'],
+                                            'key3' => ['valid', 'invalid', 'valid'],
                                         ],
                                     ],
                                 ]);
@@ -229,7 +228,7 @@ describe('ArrayTypeCheck', function () {
 
             });
 
-            describe('->validated()', function () {
+            describe('->checked()', function () {
 
                 context('when given array does not contain all the sub keys', function () {
 
@@ -284,18 +283,18 @@ describe('ArrayTypeCheck', function () {
                                 $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
-                                            ['key3' => ['valid1', 'valid2', 'valid1']],
-                                            ['key3' => ['valid1', 'valid2', 'valid1']],
-                                            ['key3' => ['valid1', 'valid2', 'valid1']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
                                         ],
                                     ],
                                 ]);
 
                                 expect($test)->toEqual(NestedResult::nested(
                                     new Success([
-                                        ['key3' => ['valid1', 'valid2', 'valid1']],
-                                        ['key3' => ['valid1', 'valid2', 'valid1']],
-                                        ['key3' => ['valid1', 'valid2', 'valid1']],
+                                        ['key3' => ['valid', 'valid', 'valid']],
+                                        ['key3' => ['valid', 'valid', 'valid']],
+                                        ['key3' => ['valid', 'valid', 'valid']],
                                     ]),
                                     'key1',
                                     'key2'
@@ -312,9 +311,9 @@ describe('ArrayTypeCheck', function () {
                                 $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
-                                            ['key3' => ['valid1', 'valid2', 'valid1']],
-                                            ['key3' => ['valid1', 'invalid', 'valid1']],
-                                            ['key3' => ['valid1', 'valid2', 'valid1']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
+                                            ['key3' => ['valid', 'invalid', 'valid']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
                                         ],
                                     ],
                                 ]);
