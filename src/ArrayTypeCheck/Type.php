@@ -4,18 +4,35 @@ namespace Quanta\ArrayTypeCheck;
 
 final class Type implements TypeInterface
 {
+    /**
+     * The type the values must have. Can be a built in type name, 'callable',
+     * an interface name or a class name.
+     *
+     * @var string
+     */
     private $type;
 
+    /**
+     * Constructor.
+     *
+     * @param string $type
+     */
     public function __construct(string $type)
     {
         $this->type = $type;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function str(): string
     {
         return $this->type;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function isValid($value): bool
     {
         if ($this->type == '*') {
