@@ -10,15 +10,6 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
 {
     private $checks;
 
-    public static function result(array $array, array $schema): ResultInterface
-    {
-        foreach ($schema as $path => $type) {
-            $checks[] = new ArrayTypeCheck(new Type($type), ...explode('.', $path));
-        }
-
-        return (new CompositeArrayTypeCheck(...($checks ?? [])))->checked($array);
-    }
-
     public function __construct(ArrayTypeCheckInterface ...$checks)
     {
         $this->checks = $checks;

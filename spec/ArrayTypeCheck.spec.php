@@ -39,6 +39,68 @@ describe('ArrayTypeCheck::result()', function () {
 
 });
 
+describe('ArrayTypeCheck::nested()', function () {
+
+    context('when the type check is a success', function () {
+
+        it('should return a success', function () {
+
+            $array = [
+                'key1' => [
+                    'key11' => ['key' => ['valid', 'valid', 'valid']],
+                    'key12' => ['key' => ['valid', 'valid', 'valid']],
+                    'key13' => ['key' => ['valid', 'valid', 'valid']],
+                ],
+                'key2' => [
+                    'key21' => ['key' => ['valid', 'valid', 'valid']],
+                    'key22' => ['key' => ['valid', 'valid', 'valid']],
+                    'key23' => ['key' => ['valid', 'valid', 'valid']],
+                ],
+            ];
+
+            $test = ArrayTypeCheck::nested($array, [
+                'key1.*.key' => 'string',
+                'key2.*.key' => 'string',
+            ]);
+
+            expect($test)->toEqual(new Success($array));
+
+        });
+
+    });
+
+    context('when the type check is a failure', function () {
+
+        it('should return a failure', function () {
+
+            $array = [
+                'key1' => [
+                    'key11' => ['key' => ['valid', 'valid', 'valid']],
+                    'key12' => ['key' => ['valid', 'valid', 'valid']],
+                    'key13' => ['key' => ['valid', 'valid', 'valid']],
+                ],
+                'key2' => [
+                    'key21' => ['key' => ['valid', 'valid', 'valid']],
+                    'key22' => ['key' => ['valid', 1, 'valid']],
+                    'key23' => ['key' => ['valid', 'valid', 'valid']],
+                ],
+            ];
+
+            $test = ArrayTypeCheck::nested($array, [
+                'key1.*.key' => 'string',
+                'key2.*.key' => 'string',
+            ]);
+
+            expect($test)->toEqual(NestedResult::nested(
+                new Failure(1, new Type('string'), '1'), 'key2', 'key22', 'key'
+            ));
+
+        });
+
+    });
+
+});
+
 describe('ArrayTypeCheck', function () {
 
     beforeEach(function () {

@@ -20,7 +20,7 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     private $type;
 
     /**
-     * The sub key path where the array to type check is located.
+     * The key path where the array to type check is located.
      *
      * @var string[]
      */
@@ -35,7 +35,25 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
      */
     public static function result(array $array, string $type): ResultInterface
     {
-        return (new ArrayTypeCheck(new Type($type)))->checked($array);
+        return (new self(new Type($type)))->checked($array);
+    }
+
+    /**
+     * Type check the given key paths against their associated type.
+     *
+     * @param array     $array
+     * @param array     $paths
+     * @return \Quanta\ArrayTypeCheck\ResultInterface
+     */
+    public static function nested(array $array, array $paths): ResultInterface
+    {
+        $checks = [];
+
+        foreach ($paths as $path => $type) {
+            $checks[] = new self(new Type($type), ...explode('.', $path));
+        }
+
+        return (new CompositeArrayTypeCheck(...$checks))->checked($array);
     }
 
     /**
@@ -61,9 +79,22 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
                 : new Failure($array[$invalid[0]], $this->type, (string) $invalid[0]);
         }
 
-        return $this->path[0] == '*'
-            ? $this->composite($array)
-            : $this->nested($array);
+        $key = $this->path[0];
+        $subpath = array_slice($this->path, 1);
+
+        if ($key == '*') {
+            return $this->exploded($array, ...$subpath)->checked($array);
+        }
+
+        $value = $array[$key] ?? [];
+
+        if (! is_array($value)) {
+            new RootFailure($value);
+        }
+
+        return new NestedResult(
+            (new self($this->type, ...$subpath))->checked($value), $key
+        );
     }
 
     /**
@@ -84,43 +115,20 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     }
 
     /**
-     * Type check the first key of the sub key path.
+     * Return a composite type check from the given array and key path.
      *
-     * @param array $array
-     * @return \Quanta\ArrayTypeCheck\ResultInterface
+     * @param array     $array
+     * @param string    ...$path
+     * @return \Quanta\CompositeArrayTypeCheck
      */
-    private function nested(array $array): ResultInterface
+    private function exploded(array $array, string ...$path): CompositeArrayTypeCheck
     {
-        $key = $this->path[0];
-        $value = $array[$key] ?? [];
+        $checks = [];
 
-        if (! is_array($value)) {
-            return new RootFailure($value);
-        }
-
-        $check = new ArrayTypeCheck($this->type, ...array_slice($this->path, 1));
-
-        return new NestedResult($check->checked($value), $key);
-    }
-
-    /**
-     * Return the result of a composite type checking of the given array.
-     *
-     * @param array $array
-     * @return \Quanta\ArrayTypeCheck\ResultInterface
-     */
-    private function composite(array $array): ResultInterface
-    {
         foreach (array_keys($array) as $key) {
-            $checks[] = new ArrayTypeCheck(
-                $this->type,
-                (string) $key,
-                ...array_slice($this->path, 1)
-            );
+            $checks[] = new self($this->type, (string) $key, ...$path);
         }
 
-        $check = new CompositeArrayTypeCheck(...($checks ?? []));
-
-        return $check->checked($array);
+        return new CompositeArrayTypeCheck(...($checks ?? []));
     }
 }
