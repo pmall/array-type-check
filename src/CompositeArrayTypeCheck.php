@@ -17,6 +17,8 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
 
     public function checked(array $array): ResultInterface
     {
+        $results = [];
+
         foreach ($this->checks as $check) {
             $result = $check->checked($array);
 
@@ -28,9 +30,18 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
         }
 
         return new Success(
-            array_merge_recursive([], ...(array_map(function ($result) {
-                return $result->sanitized();
-            }, $results ?? [])))
+            array_merge_recursive([], ...(array_map([$this, 'sanitized'], $results)))
         );
+    }
+
+    /**
+     * Return the sanitized value of the given result.
+     *
+     * @param \Quanta\ArrayTypeCheck\ResultInterface $success
+     * @return array
+     */
+    private function sanitized(ResultInterface $success): array
+    {
+        return $success->sanitized();
     }
 }
