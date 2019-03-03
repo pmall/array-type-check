@@ -89,12 +89,4 @@ final class NestedResult implements ResultInterface
             $this->key => $this->result->sanitized(),
         ];
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function formatted(callable $formatter): string
-    {
-        return $formatter($this->given(), $this->expected(), ...$this->path());
-    }
 }

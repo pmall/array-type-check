@@ -1,7 +1,5 @@
 <?php
 
-use function Eloquent\Phony\Kahlan\stub;
-
 use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\ResultInterface;
 
@@ -72,20 +70,6 @@ describe('RootFailure', function () {
         it('should throw a LogicException', function () {
 
             expect([$this->result, 'sanitized'])->toThrow(new LogicException);
-
-        });
-
-    });
-
-    describe('->formatted()', function () {
-
-        it('should return the string produced by given formatter', function () {
-
-            $formatter = stub()->with('invalid', 'array')->returns('formatted');
-
-            $test = $this->result->formatted($formatter);
-
-            expect($test)->toEqual('formatted');
 
         });
 

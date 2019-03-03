@@ -1,6 +1,5 @@
 <?php
 
-use function Eloquent\Phony\Kahlan\stub;
 use function Eloquent\Phony\Kahlan\mock;
 
 use Quanta\ArrayTypeCheck\Failure;
@@ -37,11 +36,13 @@ describe('Failure', function () {
 
     describe('->given()', function () {
 
-        it('should return the value', function () {
+        it('should return the value formatted by the type', function () {
+
+            $this->type->formatted->with('invalid')->returns('formatted');
 
             $test = $this->result->given();
 
-            expect($test)->toEqual('invalid');
+            expect($test)->toEqual('formatted');
 
         });
 
@@ -78,22 +79,6 @@ describe('Failure', function () {
         it('should throw a LogicException', function () {
 
             expect([$this->result, 'sanitized'])->toThrow(new LogicException);
-
-        });
-
-    });
-
-    describe('->formatted()', function () {
-
-        it('should return the string produced by given formatter', function () {
-
-            $this->type->str->returns('type');
-
-            $formatter = stub()->with('invalid', 'type', 'key')->returns('formatted');
-
-            $test = $this->result->formatted($formatter);
-
-            expect($test)->toEqual('formatted');
 
         });
 

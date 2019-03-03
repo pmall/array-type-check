@@ -52,7 +52,7 @@ final class Failure implements ResultInterface
      */
     public function given()
     {
-        return $this->given;
+        return $this->type->formatted($this->given);
     }
 
     /**
@@ -77,13 +77,5 @@ final class Failure implements ResultInterface
     public function sanitized(): array
     {
         throw new \LogicException('The type check failed');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function formatted(callable $formatter): string
-    {
-        return $formatter($this->given(), $this->expected(), ...$this->path());
     }
 }

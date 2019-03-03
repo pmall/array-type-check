@@ -71,18 +71,4 @@ describe('Success', function () {
 
     });
 
-    describe('->formatted()', function () {
-
-        it('should throw a LogicException', function () {
-
-            $test = function () {
-                $this->result->formatted(function () {});
-            };
-
-            expect($test)->toThrow(new LogicException);
-
-        });
-
-    });
-
 });

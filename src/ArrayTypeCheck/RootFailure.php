@@ -60,12 +60,4 @@ final class RootFailure implements ResultInterface
     {
         throw new \LogicException('The type check failed');
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function formatted(callable $formatter): string
-    {
-        return $formatter($this->given(), $this->expected(), ...$this->path());
-    }
 }

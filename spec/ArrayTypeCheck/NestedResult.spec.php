@@ -1,6 +1,5 @@
 <?php
 
-use function Eloquent\Phony\Kahlan\stub;
 use function Eloquent\Phony\Kahlan\mock;
 
 use Quanta\ArrayTypeCheck\NestedResult;
@@ -105,24 +104,6 @@ describe('NestedResult', function () {
             $test = $this->result->sanitized();
 
             expect($test)->toEqual(['key' => ['k1' => 'v1', 'k2' => 'v1', 'k3' => 'v1']]);
-
-        });
-
-    });
-
-    describe('->formatted()', function () {
-
-        it('should return the string produced by given formatter', function () {
-
-            $this->delegate->given->returns('invalid');
-            $this->delegate->expected->returns('type');
-            $this->delegate->path->returns(['k1', 'k2', 'k3']);
-
-            $formatter = stub()->with('invalid', 'type', 'key', 'k1', 'k2', 'k3')->returns('formatted');
-
-            $test = $this->result->formatted($formatter);
-
-            expect($test)->toEqual('formatted');
 
         });
 

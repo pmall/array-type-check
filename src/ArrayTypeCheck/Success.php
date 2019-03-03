@@ -60,12 +60,4 @@ final class Success implements ResultInterface
     {
         return $this->given;
     }
-
-    /**
-     * @inheritdoc
-     */
-    public function formatted(callable $formatter): string
-    {
-        throw new \LogicException('The type check succeeded');
-    }
 }

@@ -27,7 +27,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('boolean');
+                expect($test)->toEqual('an array of booleans');
 
             });
 
@@ -83,7 +83,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('integer');
+                expect($test)->toEqual('an array of integers');
 
             });
 
@@ -139,7 +139,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('double');
+                expect($test)->toEqual('an array of floats');
 
             });
 
@@ -195,7 +195,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('string');
+                expect($test)->toEqual('an array of strings');
 
             });
 
@@ -251,7 +251,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('array');
+                expect($test)->toEqual('an array of arrays');
 
             });
 
@@ -307,7 +307,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('object');
+                expect($test)->toEqual('an array of objects');
 
             });
 
@@ -363,7 +363,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('resource');
+                expect($test)->toEqual('an array of resources');
 
             });
 
@@ -383,7 +383,7 @@ describe('Type', function () {
 
             });
 
-            context('when the given value is not a boolean', function () {
+            context('when the given value is not a resource', function () {
 
                 it('should return false', function () {
 
@@ -419,7 +419,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('callable');
+                expect($test)->toEqual('an array of callables');
 
             });
 
@@ -475,7 +475,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual(Test\TestInterface::class);
+                expect($test)->toEqual(sprintf('an array of %s implementations', Test\TestInterface::class));
 
             });
 
@@ -531,7 +531,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual(Test\TestClass::class);
+                expect($test)->toEqual(sprintf('an array of %s instances', Test\TestClass::class));
 
             });
 
