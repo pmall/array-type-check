@@ -46,4 +46,14 @@ interface ResultInterface
      * @return array
      */
     public function sanitized(): array;
+
+    /**
+     * Return a string representation of the result using the given formatter.
+     *
+     * Should throw when isValid() returns true.
+     *
+     * @param callable $callable
+     * @return string
+     */
+    public function formatted(callable $formatter): string;
 }
