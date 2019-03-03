@@ -10,13 +10,13 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
 {
     private $checks;
 
-    public static function result($value, array $schema): ResultInterface
+    public static function result(array $array, array $schema): ResultInterface
     {
         foreach ($schema as $path => $type) {
             $checks[] = new ArrayTypeCheck(new Type($type), ...explode('.', $path));
         }
 
-        return (new CompositeArrayTypeCheck(...($checks ?? [])))->checked($value);
+        return (new CompositeArrayTypeCheck(...($checks ?? [])))->checked($array);
     }
 
     public function __construct(ArrayTypeCheckInterface ...$checks)
@@ -24,10 +24,10 @@ final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
         $this->checks = $checks;
     }
 
-    public function checked($value): ResultInterface
+    public function checked(array $array): ResultInterface
     {
         foreach ($this->checks as $check) {
-            $result = $check->checked($value);
+            $result = $check->checked($array);
 
             if (! $result->isValid()) {
                 return $result;

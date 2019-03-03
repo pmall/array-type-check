@@ -27,17 +27,15 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     private $path;
 
     /**
-     * Return the result of type checking the array located at the given sub key
-     * path against the given type.
+     * Type check the given array against the given type.
      *
-     * @param mixed     $value
+     * @param array     $array
      * @param string    $type
-     * @param string    ...$path
      * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    public static function result($value, string $type, string ...$path): ResultInterface
+    public static function result(array $array, string $type): ResultInterface
     {
-        return (new ArrayTypeCheck(new Type($type), ...$path))->checked($value);
+        return (new ArrayTypeCheck(new Type($type)))->checked($array);
     }
 
     /**
@@ -55,36 +53,32 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     /**
      * @inheritdoc
      */
-    public function checked($value): ResultInterface
+    public function checked(array $array): ResultInterface
     {
-        if (! is_array($value)) {
-            return new RootFailure($value);
-        }
-
         if (count($this->path) == 0) {
-            return count($invalid = $this->invalidKeys($value)) == 0
-                ? new Success($value)
-                : new Failure($value[$invalid[0]], $this->type, (string) $invalid[0]);
+            return count($invalid = $this->invalidKeys($array)) == 0
+                ? new Success($array)
+                : new Failure($array[$invalid[0]], $this->type, (string) $invalid[0]);
         }
 
         return $this->path[0] == '*'
-            ? $this->composite($value)
-            : $this->nested($value);
+            ? $this->composite($array)
+            : $this->nested($array);
     }
 
     /**
      * Return the keys of the given array which are associated to a value not
      * passing the type check.
      *
-     * @param array $values
+     * @param array $array
      * @return (int|string)[]
      */
-    private function invalidKeys(array $values): array
+    private function invalidKeys(array $array): array
     {
         return array_values(
             array_diff(
-                array_keys($values),
-                array_keys(array_filter($values, [$this->type, 'isValid']))
+                array_keys($array),
+                array_keys(array_filter($array, [$this->type, 'isValid']))
             )
         );
     }
@@ -92,13 +86,17 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     /**
      * Type check the first key of the sub key path.
      *
-     * @param array $values
+     * @param array $array
      * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    private function nested(array $values): ResultInterface
+    private function nested(array $array): ResultInterface
     {
         $key = $this->path[0];
-        $value = $values[$key] ?? [];
+        $value = $array[$key] ?? [];
+
+        if (! is_array($value)) {
+            return new RootFailure($value);
+        }
 
         $check = new ArrayTypeCheck($this->type, ...array_slice($this->path, 1));
 
@@ -108,12 +106,12 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     /**
      * Return the result of a composite type checking of the given array.
      *
-     * @param array $values
+     * @param array $array
      * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    private function composite(array $values): ResultInterface
+    private function composite(array $array): ResultInterface
     {
-        foreach (array_keys($values) as $key) {
+        foreach (array_keys($array) as $key) {
             $checks[] = new ArrayTypeCheck(
                 $this->type,
                 (string) $key,
@@ -123,6 +121,6 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
 
         $check = new CompositeArrayTypeCheck(...($checks ?? []));
 
-        return $check->checked($values);
+        return $check->checked($array);
     }
 }
