@@ -118,7 +118,7 @@ describe('NestedResult', function () {
             $this->delegate->expected->returns('type');
             $this->delegate->path->returns(['k1', 'k2', 'k3']);
 
-            $formatter = stub()->with('invalid', 'type', ['key', 'k1', 'k2', 'k3'])->returns('formatted');
+            $formatter = stub()->with('invalid', 'type', 'key', 'k1', 'k2', 'k3')->returns('formatted');
 
             $test = $this->result->formatted($formatter);
 

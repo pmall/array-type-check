@@ -81,7 +81,7 @@ describe('RootFailure', function () {
 
         it('should return the string produced by given formatter', function () {
 
-            $formatter = stub()->with('invalid', 'array', [])->returns('formatted');
+            $formatter = stub()->with('invalid', 'array')->returns('formatted');
 
             $test = $this->result->formatted($formatter);
 

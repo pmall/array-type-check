@@ -89,7 +89,7 @@ describe('Failure', function () {
 
             $this->type->str->returns('type');
 
-            $formatter = stub()->with('invalid', 'type', ['key'])->returns('formatted');
+            $formatter = stub()->with('invalid', 'type', 'key')->returns('formatted');
 
             $test = $this->result->formatted($formatter);
 

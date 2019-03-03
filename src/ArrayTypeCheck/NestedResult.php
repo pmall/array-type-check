@@ -95,6 +95,6 @@ final class NestedResult implements ResultInterface
      */
     public function formatted(callable $formatter): string
     {
-        return $formatter($this->given(), $this->expected(), $this->path());
+        return $formatter($this->given(), $this->expected(), ...$this->path());
     }
 }
