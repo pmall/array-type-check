@@ -19,19 +19,7 @@ final class InvalidArrayMessage
     private $result;
 
     /**
-     * Return the formatted string for a closure call.
-     *
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function closure(int $position, ResultInterface $result): string
-    {
-        return self::argument('{closure}', $position, $result);
-    }
-
-    /**
-     * Return the formatted string for a function call.
+     * Return the formatted string for an invalid argument exception.
      *
      * @param string                                    $function
      * @param int                                       $position
@@ -40,7 +28,19 @@ final class InvalidArrayMessage
      */
     public static function function(string $function, int $position, ResultInterface $result): string
     {
-        return self::argument($function, $position, $result);
+        return (string) new self(sprintf('argument %s passed to %s()', $position, $function), $result);
+    }
+
+    /**
+     * Return the formatted string for a closure call.
+     *
+     * @param int                                       $position
+     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
+     * @return string
+     */
+    public static function closure(int $position, ResultInterface $result): string
+    {
+        return self::function('{closure}', $position, $result);
     }
 
     /**
@@ -57,7 +57,7 @@ final class InvalidArrayMessage
     {
         if (is_object($object)) {
             $class = get_class($object);
-            if (strpos('class@anonymous', $class) !== false) {
+            if (strpos($class, 'class@anonymous') !== false) {
                 $class = 'class@anonymous';
             }
         } elseif (is_string($object)) {
@@ -71,20 +71,7 @@ final class InvalidArrayMessage
             );
         }
 
-        return self::argument(sprintf('%s::%s', $class, $method), $position, $result);
-    }
-
-    /**
-     * Return the formatted string for an invalid argument exception.
-     *
-     * @param string                                    $function
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function argument(string $function, int $position, ResultInterface $result): string
-    {
-        return (string) new self(sprintf('argument %s passed to %s()', $position, $function), $result);
+        return self::function(sprintf('%s::%s', $class, $method), $position, $result);
     }
 
     /**
@@ -117,11 +104,11 @@ final class InvalidArrayMessage
 
         if (count($path) > 1) {
             return vsprintf('Key %s of %s must be %s, %s given for key %s', [
-                implode(' > ', array_map([$this, 'quoted'], array_slice($path, 0, -1))),
+                implode('', array_map([$this, 'key'], array_slice($path, 0, -1))),
                 lcfirst($this->source),
                 $this->result->expected(),
                 $this->result->given(),
-                $this->quoted(end($path)),
+                $this->key(end($path)),
             ]);
         }
 
@@ -129,12 +116,12 @@ final class InvalidArrayMessage
             ucfirst($this->source),
             $this->result->expected(),
             $this->result->given(),
-            $this->quoted($path[0]),
+            $this->key($path[0]),
         ]);
     }
 
-    private function quoted(string $str): string
+    private function key(string $str): string
     {
-        return sprintf('\'%s\'', $str);
+        return sprintf('[%s]', $str);
     }
 }
