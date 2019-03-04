@@ -86,4 +86,12 @@ final class Failure implements ResultInterface
     {
         return new InvalidArrayMessage($this);
     }
+
+    /**
+     * Quick fix.
+     */
+    public function isRoot(): bool
+    {
+        return false;
+    }
 }

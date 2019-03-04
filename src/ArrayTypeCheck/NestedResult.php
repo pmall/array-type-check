@@ -97,4 +97,12 @@ final class NestedResult implements ResultInterface
     {
         return new InvalidArrayMessage($this);
     }
+
+    /**
+     * Quick fix.
+     */
+    public function isRoot(): bool
+    {
+        return $this->result->isRoot();
+    }
 }

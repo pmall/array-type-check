@@ -55,4 +55,9 @@ interface ResultInterface
      * @return \Quanta\ArrayTypeCheck\InvalidArrayMessage
      */
     public function message(): InvalidArrayMessage;
+
+    /**
+     * Quick fix.
+     */
+    public function isRoot(): bool;
 }

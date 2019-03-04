@@ -68,4 +68,12 @@ final class Success implements ResultInterface
     {
         throw new \LogicException('The type check succeeded');
     }
+
+    /**
+     * Quick fix.
+     */
+    public function isRoot(): bool
+    {
+        throw new \LogicException('The type check succeeded');
+    }
 }

@@ -34,7 +34,7 @@ final class RootFailure implements ResultInterface
      */
     public function given()
     {
-        return $this->given;
+        return gettype($this->given);
     }
 
     /**
@@ -67,5 +67,13 @@ final class RootFailure implements ResultInterface
     public function message(): InvalidArrayMessage
     {
         return new InvalidArrayMessage($this);
+    }
+
+    /**
+     * Quick fix.
+     */
+    public function isRoot(): bool
+    {
+        return true;
     }
 }

@@ -32,11 +32,11 @@ describe('RootFailure', function () {
 
     describe('->given()', function () {
 
-        it('should return the value', function () {
+        it('should return the result of gettype()', function () {
 
             $test = $this->result->given();
 
-            expect($test)->toEqual('invalid');
+            expect($test)->toEqual('string');
 
         });
 

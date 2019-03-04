@@ -30,6 +30,14 @@ final class InvalidArrayMessage
     {
         $path = $this->result->path();
 
+        if ($this->result->isRoot()) {
+            return vsprintf('Key %s of %s must be an array, %s given', [
+                implode('', array_map([$this, 'key'], $path)),
+                lcfirst($source),
+                $this->result->given(),
+            ]);
+        }
+
         if (count($path) > 1) {
             return vsprintf('Key %s of %s must be %s, %s given for key %s', [
                 implode('', array_map([$this, 'key'], array_slice($path, 0, -1))),
