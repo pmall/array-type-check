@@ -89,4 +89,12 @@ final class NestedResult implements ResultInterface
             $this->key => $this->result->sanitized(),
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function message(): InvalidArrayMessage
+    {
+        return new InvalidArrayMessage($this);
+    }
 }

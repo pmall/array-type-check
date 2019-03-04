@@ -4,6 +4,7 @@ use function Eloquent\Phony\Kahlan\mock;
 
 use Quanta\ArrayTypeCheck\NestedResult;
 use Quanta\ArrayTypeCheck\ResultInterface;
+use Quanta\ArrayTypeCheck\InvalidArrayMessage;
 
 describe('NestedResult', function () {
 
@@ -104,6 +105,18 @@ describe('NestedResult', function () {
             $test = $this->result->sanitized();
 
             expect($test)->toEqual(['key' => ['k1' => 'v1', 'k2' => 'v1', 'k3' => 'v1']]);
+
+        });
+
+    });
+
+    describe('->message()', function () {
+
+        it('should return an InvalidArrayMessage', function () {
+
+            $test = $this->result->message();
+
+            expect($test)->toEqual(new InvalidArrayMessage($this->result));
 
         });
 

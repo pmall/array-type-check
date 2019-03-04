@@ -46,4 +46,13 @@ interface ResultInterface
      * @return array
      */
     public function sanitized(): array;
+
+    /**
+     * Return an InvalidArrayMessage.
+     *
+     * Should throw when isValid() returns true.
+     *
+     * @return \Quanta\ArrayTypeCheck\InvalidArrayMessage
+     */
+    public function message(): InvalidArrayMessage;
 }

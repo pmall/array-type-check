@@ -5,13 +5,6 @@ namespace Quanta\ArrayTypeCheck;
 final class InvalidArrayMessage
 {
     /**
-     * The source of the array.
-     *
-     * @var string
-     */
-    private $source;
-
-    /**
      * The result of the array type checking.
      *
      * @var \Quanta\ArrayTypeCheck\ResultInterface
@@ -19,93 +12,12 @@ final class InvalidArrayMessage
     private $result;
 
     /**
-     * Return an invalid argument exception for a function call.
-     *
-     * @param string                                    $function
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function function(string $function, int $position, ResultInterface $result): string
-    {
-        return (string) new self(sprintf('argument %s passed to %s()', $position, $function), $result);
-    }
-
-    /**
-     * Return an invalid argument exception for a closure call.
-     *
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function closure(int $position, ResultInterface $result): string
-    {
-        return self::function('{closure}', $position, $result);
-    }
-
-    /**
-     * Return the formatted string for a static method method call.
-     *
-     * @param string                                    $class
-     * @param string                                    $method
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function static(string $class, string $method, int $position, ResultInterface $result): string
-    {
-        return self::function(sprintf('%s::%s', $class, $method), $position, $result);
-    }
-
-    /**
-     * Return the formatted string for an instance method call.
-     *
-     * @param object                                    $object
-     * @param string                                    $method
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function method($object, string $method, int $position, ResultInterface $result): string
-    {
-        $class = get_class($object);
-
-        if (strpos($class, 'class@anonymous') !== false) {
-            $class = 'class@anonymous';
-        }
-
-        return self::static($class, $method, $position, $result);
-    }
-
-    /**
-     * Return an invalid argument exception for a constructor call.
-     *
-     * @param object                                    $object
-     * @param int                                       $position
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @return string
-     */
-    public static function constructor($object, int $position, ResultInterface $result): string
-    {
-        return self::method($object, '__construct', $position, $result);
-    }
-
-    /**
      * Constructor.
      *
-     * @param string                                    $source
-     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
-     * @throws \InvalidArgumentException
+     * @param \Quanta\ArrayTypeCheck\ResultInterface $result
      */
-    public function __construct(string $source, ResultInterface $result)
+    public function __construct(ResultInterface $result)
     {
-        if ($result->isValid()) {
-            throw new \InvalidArgumentException(
-                'Can\'t format a successful array type check result'
-            );
-        }
-
-        $this->source = $source;
         $this->result = $result;
     }
 
@@ -114,14 +26,14 @@ final class InvalidArrayMessage
      *
      * @return string
      */
-    public function __toString()
+    public function source(string $source): string
     {
         $path = $this->result->path();
 
         if (count($path) > 1) {
             return vsprintf('Key %s of %s must be %s, %s given for key %s', [
                 implode('', array_map([$this, 'key'], array_slice($path, 0, -1))),
-                lcfirst($this->source),
+                lcfirst($source),
                 $this->result->expected(),
                 $this->result->given(),
                 $this->key(end($path)),
@@ -129,15 +41,88 @@ final class InvalidArrayMessage
         }
 
         return vsprintf('%s must be %s, %s given for key %s', [
-            ucfirst($this->source),
+            ucfirst($source),
             $this->result->expected(),
             $this->result->given(),
             $this->key($path[0]),
         ]);
     }
 
-    private function key(string $str): string
+    /**
+     * Return an invalid argument exception for a function call.
+     *
+     * @param string    $function
+     * @param int       $position
+     * @return string
+     */
+    public function function(string $function, int $position): string
     {
-        return sprintf('[%s]', $str);
+        return $this->source(sprintf('argument %s passed to %s()', $position, $function));
+    }
+
+    /**
+     * Return an invalid argument exception for a closure call.
+     *
+     * @param int $position
+     * @return string
+     */
+    public function closure(int $position): string
+    {
+        return $this->function('{closure}', $position);
+    }
+
+    /**
+     * Return the formatted string for a static method method call.
+     *
+     * @param string    $class
+     * @param string    $method
+     * @param int       $position
+     * @return string
+     */
+    public function static(string $class, string $method, int $position): string
+    {
+        return $this->function(sprintf('%s::%s', $class, $method), $position);
+    }
+
+    /**
+     * Return the formatted string for an instance method call.
+     *
+     * @param object    $object
+     * @param string    $method
+     * @param int       $position
+     * @return string
+     */
+    public function method($object, string $method, int $position): string
+    {
+        $class = get_class($object);
+
+        if (strpos($class, 'class@anonymous') !== false) {
+            $class = 'class@anonymous';
+        }
+
+        return $this->static($class, $method, $position);
+    }
+
+    /**
+     * Return an invalid argument exception for a constructor call.
+     *
+     * @param object    $object
+     * @param int       $position
+     * @return string
+     */
+    public function constructor($object, int $position): string
+    {
+        return $this->method($object, '__construct', $position);
+    }
+
+    /**
+     * Return the string representation of a key from the given string.
+     *
+     * @param string $key
+     * @return string
+     */
+    private function key(string $key): string
+    {
+        return sprintf('[%s]', $key);
     }
 }

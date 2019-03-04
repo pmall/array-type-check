@@ -60,4 +60,12 @@ final class Success implements ResultInterface
     {
         return $this->given;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function message(): InvalidArrayMessage
+    {
+        throw new \LogicException('The type check succeeded');
+    }
 }

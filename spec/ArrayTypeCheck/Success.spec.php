@@ -71,4 +71,14 @@ describe('Success', function () {
 
     });
 
+    describe('->message()', function () {
+
+        it('should throw a LogicException', function () {
+
+            expect([$this->result, 'message'])->toThrow(new LogicException);
+
+        });
+
+    });
+
 });

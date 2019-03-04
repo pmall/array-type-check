@@ -78,4 +78,12 @@ final class Failure implements ResultInterface
     {
         throw new \LogicException('The type check failed');
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function message(): InvalidArrayMessage
+    {
+        return new InvalidArrayMessage($this);
+    }
 }

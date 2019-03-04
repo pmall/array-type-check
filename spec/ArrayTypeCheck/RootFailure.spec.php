@@ -2,6 +2,7 @@
 
 use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\ResultInterface;
+use Quanta\ArrayTypeCheck\InvalidArrayMessage;
 
 describe('RootFailure', function () {
 
@@ -70,6 +71,18 @@ describe('RootFailure', function () {
         it('should throw a LogicException', function () {
 
             expect([$this->result, 'sanitized'])->toThrow(new LogicException);
+
+        });
+
+    });
+
+    describe('->message()', function () {
+
+        it('should return an InvalidArrayMessage', function () {
+
+            $test = $this->result->message();
+
+            expect($test)->toEqual(new InvalidArrayMessage($this->result));
 
         });
 

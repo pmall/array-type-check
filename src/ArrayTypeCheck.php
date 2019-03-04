@@ -9,7 +9,6 @@ use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\NestedResult;
 use Quanta\ArrayTypeCheck\TypeInterface;
 use Quanta\ArrayTypeCheck\ResultInterface;
-use Quanta\ArrayTypeCheck\InvalidArrayMessage;
 
 final class ArrayTypeCheck implements ArrayTypeCheckInterface
 {
@@ -53,7 +52,7 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
 
         if (! $result->isValid()) {
             throw new \InvalidArgumentException(
-                InvalidArrayMessage::static(self::class, 'nested', 2, $result)
+                $result->message()->static(self::class, 'nested', 2)
             );
         }
 
