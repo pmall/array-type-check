@@ -19,7 +19,7 @@ final class InvalidArrayMessage
     private $result;
 
     /**
-     * Return the formatted string for an invalid argument exception.
+     * Return an invalid argument exception for a function call.
      *
      * @param string                                    $function
      * @param int                                       $position
@@ -32,7 +32,7 @@ final class InvalidArrayMessage
     }
 
     /**
-     * Return the formatted string for a closure call.
+     * Return an invalid argument exception for a closure call.
      *
      * @param int                                       $position
      * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
@@ -44,34 +44,50 @@ final class InvalidArrayMessage
     }
 
     /**
-     * Return the formatted string for a method call.
+     * Return the formatted string for a static method method call.
      *
-     * @param string|object                             $object
+     * @param string                                    $class
      * @param string                                    $method
      * @param int                                       $position
      * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
      * @return string
-     * @throws \InvalidArgumentException
+     */
+    public static function static(string $class, string $method, int $position, ResultInterface $result): string
+    {
+        return self::function(sprintf('%s::%s', $class, $method), $position, $result);
+    }
+
+    /**
+     * Return the formatted string for an instance method call.
+     *
+     * @param object                                    $object
+     * @param string                                    $method
+     * @param int                                       $position
+     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
+     * @return string
      */
     public static function method($object, string $method, int $position, ResultInterface $result): string
     {
-        if (is_object($object)) {
-            $class = get_class($object);
-            if (strpos($class, 'class@anonymous') !== false) {
-                $class = 'class@anonymous';
-            }
-        } elseif (is_string($object)) {
-            $class = $object;
-        } else {
-            throw new \InvalidArgumentException(
-                vsprintf('Argument 1 passed to %s::method() must be a string or an object, %s given', [
-                    InvalidArrayMessage::class,
-                    gettype($object),
-                ])
-            );
+        $class = get_class($object);
+
+        if (strpos($class, 'class@anonymous') !== false) {
+            $class = 'class@anonymous';
         }
 
-        return self::function(sprintf('%s::%s', $class, $method), $position, $result);
+        return self::static($class, $method, $position, $result);
+    }
+
+    /**
+     * Return an invalid argument exception for a constructor call.
+     *
+     * @param object                                    $object
+     * @param int                                       $position
+     * @param \Quanta\ArrayTypeCheck\ResultInterface    $result
+     * @return string
+     */
+    public static function constructor($object, int $position, ResultInterface $result): string
+    {
+        return self::method($object, '__construct', $position, $result);
     }
 
     /**

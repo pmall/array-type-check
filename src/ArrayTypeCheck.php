@@ -53,7 +53,7 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
 
         if (! $result->isValid()) {
             throw new \InvalidArgumentException(
-                InvalidArrayMessage::method(self::class, 'nested', 2, $result)
+                InvalidArrayMessage::static(self::class, 'nested', 2, $result)
             );
         }
 
