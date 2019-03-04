@@ -97,12 +97,11 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
 
         $value = $array[$key] ?? [];
 
-        if (! is_array($value)) {
-            new RootFailure($value);
-        }
-
         return new NestedResult(
-            (new self($this->type, ...$subpath))->checked($value), $key
+            ! is_array($value)
+                ? new RootFailure($value)
+                : (new self($this->type, ...$subpath))->checked($value),
+            $key
         );
     }
 
@@ -138,6 +137,6 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
             $checks[] = new self($this->type, (string) $key, ...$path);
         }
 
-        return new CompositeArrayTypeCheck(...($checks ?? []));
+        return new CompositeArrayTypeCheck(...$checks);
     }
 }

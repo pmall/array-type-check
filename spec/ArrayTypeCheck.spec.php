@@ -316,13 +316,31 @@ describe('ArrayTypeCheck', function () {
 
                 context('when given array does not contain all the sub keys', function () {
 
-                    it('should return a success', function () {
+                    context('when all the sub keys are associated to arrays', function () {
 
-                        $test = $this->check->checked(['key1' => []]);
+                        it('should return a success', function () {
 
-                        expect($test)->toEqual(NestedResult::nested(
-                            new Success([]), 'key1', 'key2'
-                        ));
+                            $test = $this->check->checked(['key1' => []]);
+
+                            expect($test)->toEqual(NestedResult::nested(
+                                new Success([]), 'key1', 'key2'
+                            ));
+
+                        });
+
+                    });
+
+                    context('when a sub key is not associated to an array', function () {
+
+                        it('should return a failure', function () {
+
+                            $test = $this->check->checked(['key1' => ['key2' => 'invalid']]);
+
+                            expect($test)->toEqual(NestedResult::nested(
+                                new RootFailure('invalid'), 'key1', 'key2'
+                            ));
+
+                        });
 
                     });
 
@@ -330,55 +348,27 @@ describe('ArrayTypeCheck', function () {
 
                 context('when given array contains all the sub keys', function () {
 
-                    context('when the nested array is empty', function () {
+                    context('when all the sub keys are associated to arrays', function () {
 
-                        it('should return a success', function () {
-
-                            $test = $this->check->checked([
-                                'key1' => [
-                                    'key2' => [
-                                        ['key3' => []],
-                                        ['key3' => []],
-                                        ['key3' => []],
-                                    ],
-                                ],
-                            ]);
-
-                            expect($test)->toEqual(NestedResult::nested(
-                                new Success([
-                                    ['key3' => []],
-                                    ['key3' => []],
-                                    ['key3' => []],
-                                ]),
-                                'key1',
-                                'key2'
-                            ));
-
-                        });
-
-                    });
-
-                    context('when the nested array is not empty', function () {
-
-                        context('when all the values of the given array are valid', function () {
+                        context('when the nested array is empty', function () {
 
                             it('should return a success', function () {
 
                                 $test = $this->check->checked([
                                     'key1' => [
                                         'key2' => [
-                                            ['key3' => ['valid', 'valid', 'valid']],
-                                            ['key3' => ['valid', 'valid', 'valid']],
-                                            ['key3' => ['valid', 'valid', 'valid']],
+                                            ['key3' => []],
+                                            ['key3' => []],
+                                            ['key3' => []],
                                         ],
                                     ],
                                 ]);
 
                                 expect($test)->toEqual(NestedResult::nested(
                                     new Success([
-                                        ['key3' => ['valid', 'valid', 'valid']],
-                                        ['key3' => ['valid', 'valid', 'valid']],
-                                        ['key3' => ['valid', 'valid', 'valid']],
+                                        ['key3' => []],
+                                        ['key3' => []],
+                                        ['key3' => []],
                                     ]),
                                     'key1',
                                     'key2'
@@ -388,25 +378,79 @@ describe('ArrayTypeCheck', function () {
 
                         });
 
-                        context('when a value of the given array is not valid', function () {
+                        context('when the nested array is not empty', function () {
 
-                            it('should return a failure', function () {
+                            context('when all the values of the given array are valid', function () {
 
-                                $test = $this->check->checked([
-                                    'key1' => [
-                                        'key2' => [
-                                            ['key3' => ['valid', 'valid', 'valid']],
-                                            ['key3' => ['valid', 'invalid', 'valid']],
-                                            ['key3' => ['valid', 'valid', 'valid']],
+                                it('should return a success', function () {
+
+                                    $test = $this->check->checked([
+                                        'key1' => [
+                                            'key2' => [
+                                                ['key3' => ['valid', 'valid', 'valid']],
+                                                ['key3' => ['valid', 'valid', 'valid']],
+                                                ['key3' => ['valid', 'valid', 'valid']],
+                                            ],
                                         ],
-                                    ],
-                                ]);
+                                    ]);
 
-                                expect($test)->toEqual(NestedResult::nested(
-                                    new Failure('invalid', $this->type->get(), '1'), 'key1', 'key2', '1', 'key3'
-                                ));
+                                    expect($test)->toEqual(NestedResult::nested(
+                                        new Success([
+                                            ['key3' => ['valid', 'valid', 'valid']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
+                                            ['key3' => ['valid', 'valid', 'valid']],
+                                        ]),
+                                        'key1',
+                                        'key2'
+                                    ));
+
+                                });
 
                             });
+
+                            context('when a value of the given array is not valid', function () {
+
+                                it('should return a failure', function () {
+
+                                    $test = $this->check->checked([
+                                        'key1' => [
+                                            'key2' => [
+                                                ['key3' => ['valid', 'valid', 'valid']],
+                                                ['key3' => ['valid', 'invalid', 'valid']],
+                                                ['key3' => ['valid', 'valid', 'valid']],
+                                            ],
+                                        ],
+                                    ]);
+
+                                    expect($test)->toEqual(NestedResult::nested(
+                                        new Failure('invalid', $this->type->get(), '1'), 'key1', 'key2', '1', 'key3'
+                                    ));
+
+                                });
+
+                            });
+
+                        });
+
+                    });
+
+                    context('when a sub key is not associated to an array', function () {
+
+                        it('should return a failure', function () {
+
+                            $test = $this->check->checked([
+                                'key1' => [
+                                    'key2' => [
+                                        ['key3' => ['valid', 'valid', 'valid']],
+                                        ['key3' => 'invalid'],
+                                        ['key3' => ['valid', 'valid', 'valid']],
+                                    ],
+                                ],
+                            ]);
+
+                            expect($test)->toEqual(NestedResult::nested(
+                                new RootFailure('invalid'), 'key1', 'key2', '1', 'key3'
+                            ));
 
                         });
 
