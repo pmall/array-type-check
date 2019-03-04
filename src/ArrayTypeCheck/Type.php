@@ -57,7 +57,7 @@ final class Type implements TypeInterface
         if (is_object($given) && (interface_exists($this->type) || class_exists($this->type))) {
             $class = get_class($given);
 
-            if (strpos('class@anonymous', $class) !== false) {
+            if (strpos($class, 'class@anonymous') !== false) {
                 $class = 'class@anonymous';
             }
 

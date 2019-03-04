@@ -61,6 +61,34 @@ describe('Type', function () {
 
         });
 
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
+
+                });
+
+            });
+
+        });
+
     });
 
     context('when the type is integer', function () {
@@ -110,6 +138,34 @@ describe('Type', function () {
                     $test = $this->type->isValid(true);
 
                     expect($test)->toBeFalsy();
+
+                });
+
+            });
+
+        });
+
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
 
                 });
 
@@ -173,6 +229,34 @@ describe('Type', function () {
 
         });
 
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
+
+                });
+
+            });
+
+        });
+
     });
 
     context('when the type is string', function () {
@@ -222,6 +306,34 @@ describe('Type', function () {
                     $test = $this->type->isValid(1);
 
                     expect($test)->toBeFalsy();
+
+                });
+
+            });
+
+        });
+
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
 
                 });
 
@@ -285,6 +397,34 @@ describe('Type', function () {
 
         });
 
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
+
+                });
+
+            });
+
+        });
+
     });
 
     context('when the type is object', function () {
@@ -334,6 +474,34 @@ describe('Type', function () {
                     $test = $this->type->isValid(1);
 
                     expect($test)->toBeFalsy();
+
+                });
+
+            });
+
+        });
+
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
 
                 });
 
@@ -397,6 +565,34 @@ describe('Type', function () {
 
         });
 
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
+
+                });
+
+            });
+
+        });
+
     });
 
     context('when the type is callable', function () {
@@ -446,6 +642,34 @@ describe('Type', function () {
                     $test = $this->type->isValid(1);
 
                     expect($test)->toBeFalsy();
+
+                });
+
+            });
+
+        });
+
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                it('should return object', function () {
+
+                    $test = $this->type->formatted(new class {});
+
+                    expect($test)->toEqual('object');
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
 
                 });
 
@@ -509,6 +733,50 @@ describe('Type', function () {
 
         });
 
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                context('when the given object is anonymous', function () {
+
+                    it('should return class@anonymous', function () {
+
+                        $test = $this->type->formatted(new class {});
+
+                        expect($test)->toEqual('instance of class@anonymous');
+
+                    });
+
+                });
+
+                context('when the given object is not anonymous', function () {
+
+                    it('should return object class name', function () {
+
+                        $test = $this->type->formatted(new Test\TestClass);
+
+                        expect($test)->toEqual(sprintf('instance of %s', Test\TestClass::class));
+
+                    });
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
+
+                });
+
+            });
+
+        });
+
     });
 
     context('when the type is a class name', function () {
@@ -558,6 +826,50 @@ describe('Type', function () {
                     $test = $this->type->isValid(1);
 
                     expect($test)->toBeFalsy();
+
+                });
+
+            });
+
+        });
+
+        describe('->formatted()', function () {
+
+            context('when the given value is an object', function () {
+
+                context('when the given object is anonymous', function () {
+
+                    it('should return class@anonymous', function () {
+
+                        $test = $this->type->formatted(new class {});
+
+                        expect($test)->toEqual('instance of class@anonymous');
+
+                    });
+
+                });
+
+                context('when the given object is not anonymous', function () {
+
+                    it('should return object class name', function () {
+
+                        $test = $this->type->formatted(new Test\TestClass);
+
+                        expect($test)->toEqual(sprintf('instance of %s', Test\TestClass::class));
+
+                    });
+
+                });
+
+            });
+
+            context('when the given value is not an object', function () {
+
+                it('should return the result of gettype()', function () {
+
+                    $test = $this->type->formatted(1);
+
+                    expect($test)->toEqual('integer');
 
                 });
 
