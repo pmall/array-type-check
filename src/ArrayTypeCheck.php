@@ -9,6 +9,7 @@ use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\NestedResult;
 use Quanta\ArrayTypeCheck\TypeInterface;
 use Quanta\ArrayTypeCheck\ResultInterface;
+use Quanta\ArrayTypeCheck\InvalidArrayMessage;
 
 final class ArrayTypeCheck implements ArrayTypeCheckInterface
 {
@@ -42,11 +43,20 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
      * Type check the given key paths against their associated type.
      *
      * @param array     $array
-     * @param array     $paths
+     * @param string[]  $paths
      * @return \Quanta\ArrayTypeCheck\ResultInterface
+     * @throws \InvalidArgumentException
      */
     public static function nested(array $array, array $paths): ResultInterface
     {
+        $result = self::result($paths, 'string');
+
+        if (! $result->isValid()) {
+            throw new \InvalidArgumentException(
+                InvalidArrayMessage::method(self::class, 'nested', 2, $result)
+            );
+        }
+
         $checks = [];
 
         foreach ($paths as $path => $type) {

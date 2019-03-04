@@ -41,59 +41,81 @@ describe('ArrayTypeCheck::result()', function () {
 
 describe('ArrayTypeCheck::nested()', function () {
 
-    context('when the type check is a success', function () {
+    context('when all the paths of the given array are strings', function () {
 
-        it('should return a success', function () {
+        context('when the type check is a success', function () {
 
-            $array = [
-                'key1' => [
-                    'key11' => ['key' => ['valid', 'valid', 'valid']],
-                    'key12' => ['key' => ['valid', 'valid', 'valid']],
-                    'key13' => ['key' => ['valid', 'valid', 'valid']],
-                ],
-                'key2' => [
-                    'key21' => ['key' => ['valid', 'valid', 'valid']],
-                    'key22' => ['key' => ['valid', 'valid', 'valid']],
-                    'key23' => ['key' => ['valid', 'valid', 'valid']],
-                ],
-            ];
+            it('should return a success', function () {
 
-            $test = ArrayTypeCheck::nested($array, [
-                'key1.*.key' => 'string',
-                'key2.*.key' => 'string',
-            ]);
+                $array = [
+                    'key1' => [
+                        'key11' => ['key' => ['valid', 'valid', 'valid']],
+                        'key12' => ['key' => ['valid', 'valid', 'valid']],
+                        'key13' => ['key' => ['valid', 'valid', 'valid']],
+                    ],
+                    'key2' => [
+                        'key21' => ['key' => ['valid', 'valid', 'valid']],
+                        'key22' => ['key' => ['valid', 'valid', 'valid']],
+                        'key23' => ['key' => ['valid', 'valid', 'valid']],
+                    ],
+                ];
 
-            expect($test)->toEqual(new Success($array));
+                $test = ArrayTypeCheck::nested($array, [
+                    'key1.*.key' => 'string',
+                    'key2.*.key' => 'string',
+                ]);
+
+                expect($test)->toEqual(new Success($array));
+
+            });
+
+        });
+
+        context('when the type check is a failure', function () {
+
+            it('should return a failure', function () {
+
+                $array = [
+                    'key1' => [
+                        'key11' => ['key' => ['valid', 'valid', 'valid']],
+                        'key12' => ['key' => ['valid', 'valid', 'valid']],
+                        'key13' => ['key' => ['valid', 'valid', 'valid']],
+                    ],
+                    'key2' => [
+                        'key21' => ['key' => ['valid', 'valid', 'valid']],
+                        'key22' => ['key' => ['valid', 1, 'valid']],
+                        'key23' => ['key' => ['valid', 'valid', 'valid']],
+                    ],
+                ];
+
+                $test = ArrayTypeCheck::nested($array, [
+                    'key1.*.key' => 'string',
+                    'key2.*.key' => 'string',
+                ]);
+
+                expect($test)->toEqual(NestedResult::nested(
+                    new Failure(1, new Type('string'), '1'), 'key2', 'key22', 'key'
+                ));
+
+            });
 
         });
 
     });
 
-    context('when the type check is a failure', function () {
+    context('when one value of the given array is not a string', function () {
 
-        it('should return a failure', function () {
+        it('should throw an InvalidArgumentException', function () {
 
-            $array = [
-                'key1' => [
-                    'key11' => ['key' => ['valid', 'valid', 'valid']],
-                    'key12' => ['key' => ['valid', 'valid', 'valid']],
-                    'key13' => ['key' => ['valid', 'valid', 'valid']],
-                ],
-                'key2' => [
-                    'key21' => ['key' => ['valid', 'valid', 'valid']],
-                    'key22' => ['key' => ['valid', 1, 'valid']],
-                    'key23' => ['key' => ['valid', 'valid', 'valid']],
-                ],
-            ];
+            $test = function () {
+                ArrayTypeCheck::nested([], [
+                    'key1.*.key' => 'string',
+                    'key2.*.key' => 1,
+                    'key3.*.key' => 'string',
+                ]);
+            };
 
-            $test = ArrayTypeCheck::nested($array, [
-                'key1.*.key' => 'string',
-                'key2.*.key' => 'string',
-            ]);
-
-            expect($test)->toEqual(NestedResult::nested(
-                new Failure(1, new Type('string'), '1'), 'key2', 'key22', 'key'
-            ));
+            expect($test)->toThrow(new InvalidArgumentException);
 
         });
 
