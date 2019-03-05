@@ -12,13 +12,49 @@ final class RootFailure implements ResultInterface
     private $given;
 
     /**
+     * The key of the non array value.
+     *
+     * @var string $key
+     */
+    private $key;
+
+    /**
+     * The path of the non array value.
+     *
+     * @var string[]
+     */
+    private $path;
+
+    /**
      * Constructor.
      *
-     * @param mixed $given
+     * @param mixed     $given
+     * @param string    $key
+     * @param string    ...$path
      */
-    public function __construct($given)
+    public function __construct($given, string $key, string ...$path)
     {
         $this->given = $given;
+        $this->key = $key;
+        $this->path = $path;
+    }
+
+    /**
+     * Return the non array value.
+     *
+     * @return mixed
+     */
+    public function given()
+    {
+        return $this->given;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function path(): array
+    {
+        return array_merge($this->path, [$this->key]);
     }
 
     /**
@@ -32,25 +68,9 @@ final class RootFailure implements ResultInterface
     /**
      * @inheritdoc
      */
-    public function given()
+    public function with(string $key): ResultInterface
     {
-        return gettype($this->given);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function expected(): string
-    {
-        return 'array';
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function path(): array
-    {
-        return [];
+        return new RootFailure($this->given, $this->key, $key, ...$this->path);
     }
 
     /**
@@ -58,7 +78,7 @@ final class RootFailure implements ResultInterface
      */
     public function sanitized(): array
     {
-        throw new \LogicException('The type check failed');
+        throw new \LogicException('The array is not valid');
     }
 
     /**
@@ -66,14 +86,8 @@ final class RootFailure implements ResultInterface
      */
     public function message(): InvalidArrayMessage
     {
-        return new InvalidArrayMessage($this);
-    }
-
-    /**
-     * Quick fix.
-     */
-    public function isRoot(): bool
-    {
-        return true;
+        return new InvalidArrayMessage(
+            new RootFailureFormatter($this)
+        );
     }
 }

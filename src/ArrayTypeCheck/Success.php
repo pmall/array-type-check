@@ -5,20 +5,20 @@ namespace Quanta\ArrayTypeCheck;
 final class Success implements ResultInterface
 {
     /**
-     * The type checked array.
+     * The valid array.
      *
-     * @var array $given
+     * @var array
      */
-    private $given;
+    private $value;
 
     /**
      * Constructor.
      *
-     * @param array $given
+     * @param array $value
      */
-    public function __construct(array $given)
+    public function __construct(array $value)
     {
-        $this->given = $given;
+        $this->value = $value;
     }
 
     /**
@@ -32,25 +32,9 @@ final class Success implements ResultInterface
     /**
      * @inheritdoc
      */
-    public function given()
+    public function with(string $key): ResultInterface
     {
-        throw new \LogicException('The type check succeeded');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function expected(): string
-    {
-        throw new \LogicException('The type check succeeded');
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function path(): array
-    {
-        throw new \LogicException('The type check succeeded');
+        return new Success([$key => $this->value]);
     }
 
     /**
@@ -58,7 +42,7 @@ final class Success implements ResultInterface
      */
     public function sanitized(): array
     {
-        return $this->given;
+        return $this->value;
     }
 
     /**
@@ -66,14 +50,6 @@ final class Success implements ResultInterface
      */
     public function message(): InvalidArrayMessage
     {
-        throw new \LogicException('The type check succeeded');
-    }
-
-    /**
-     * Quick fix.
-     */
-    public function isRoot(): bool
-    {
-        throw new \LogicException('The type check succeeded');
+        throw new \LogicException('The array is valid');
     }
 }

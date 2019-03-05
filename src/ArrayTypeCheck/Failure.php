@@ -5,7 +5,7 @@ namespace Quanta\ArrayTypeCheck;
 final class Failure implements ResultInterface
 {
     /**
-     * The value having an unexpected type.
+     * The value with an invalid type.
      *
      * @var mixed
      */
@@ -26,25 +26,26 @@ final class Failure implements ResultInterface
     private $key;
 
     /**
+     * The path of the invalid array.
+     *
+     * @var string[]
+     */
+    private $path;
+
+    /**
      * Constructor.
      *
      * @param mixed                                 $given
      * @param \Quanta\ArrayTypeCheck\TypeInterface  $type
      * @param string                                $key
+     * @param string                                ...$path
      */
-    public function __construct($given, TypeInterface $type, string $key)
+    public function __construct($given, TypeInterface $type, string $key, string ...$path)
     {
         $this->given = $given;
         $this->type = $type;
         $this->key = $key;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isValid(): bool
-    {
-        return false;
+        $this->path = $path;
     }
 
     /**
@@ -52,7 +53,7 @@ final class Failure implements ResultInterface
      */
     public function given()
     {
-        return $this->type->formatted($this->given);
+        return $this->given;
     }
 
     /**
@@ -68,7 +69,23 @@ final class Failure implements ResultInterface
      */
     public function path(): array
     {
-        return [$this->key];
+        return array_merge($this->path, [$this->key]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isValid(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function with(string $key): ResultInterface
+    {
+        return new Failure($this->given, $this->type, $this->key, $key, ...$this->path);
     }
 
     /**
@@ -76,7 +93,7 @@ final class Failure implements ResultInterface
      */
     public function sanitized(): array
     {
-        throw new \LogicException('The type check failed');
+        throw new \LogicException('The array is not valid');
     }
 
     /**
@@ -84,14 +101,13 @@ final class Failure implements ResultInterface
      */
     public function message(): InvalidArrayMessage
     {
-        return new InvalidArrayMessage($this);
-    }
-
-    /**
-     * Quick fix.
-     */
-    public function isRoot(): bool
-    {
-        return false;
+        return new InvalidArrayMessage(
+            new FailureFormatter(
+                $this->given,
+                $this->type->str(),
+                $this->key,
+                ...$this->path
+            )
+        );
     }
 }

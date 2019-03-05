@@ -4,6 +4,7 @@ use function Eloquent\Phony\Kahlan\mock;
 
 use Quanta\ArrayTypeCheck\ResultInterface;
 use Quanta\ArrayTypeCheck\InvalidArrayMessage;
+use Quanta\ArrayTypeCheck\FailureFormatterInterface;
 
 require_once __DIR__ . '/../.test/classes.php';
 
@@ -11,42 +12,21 @@ describe('InvalidArrayMessage', function () {
 
     beforeEach(function () {
 
-        $this->result = mock(ResultInterface::class);
+        $this->formatter = mock(FailureFormatterInterface::class);
 
-        $this->result->given->returns('value');
-        $this->result->expected->returns('expected');
-
-        $this->message = new InvalidArrayMessage($this->result->get());
+        $this->message = new InvalidArrayMessage($this->formatter->get());
 
     });
 
     describe('->source()', function () {
 
-        context('when the result ->path() method returns one key', function () {
+        it('should format the result with the given source', function () {
 
-            it('should return an invalid array message', function () {
+            $this->formatter->__invoke->with('source')->returns('value');
 
-                $this->result->path->returns(['test']);
+            $test = $this->message->source('source');
 
-                $test = $this->message->source('source');
-
-                expect($test)->toEqual('Source must be expected, value given for key [test]');
-
-            });
-
-        });
-
-        context('when the result ->path() method returns more than one key', function () {
-
-            it('should return a nested invalid array message', function () {
-
-                $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                $test = $this->message->source('source');
-
-                expect($test)->toEqual('Key [test1][test2] of source must be expected, value given for key [test3]');
-
-            });
+            expect($test)->toEqual('value');
 
         });
 
@@ -54,31 +34,13 @@ describe('InvalidArrayMessage', function () {
 
     describe('->function()', function () {
 
-        context('when the result ->path() method returns one key', function () {
+        it('should format the result for a function call', function () {
 
-            it('should return an invalid argument exception for a function call', function () {
+            $this->formatter->__invoke->with('argument 1 passed to function()')->returns('value');
 
-                $this->result->path->returns(['test']);
+            $test = $this->message->function('function', 1);
 
-                $test = $this->message->function('function', 1);
-
-                expect($test)->toEqual('Argument 1 passed to function() must be expected, value given for key [test]');
-
-            });
-
-        });
-
-        context('when the result ->path() method returns more than one key', function () {
-
-            it('should return an invalid argument exception for a function call', function () {
-
-                $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                $test = $this->message->function('function', 1);
-
-                expect($test)->toEqual('Key [test1][test2] of argument 1 passed to function() must be expected, value given for key [test3]');
-
-            });
+            expect($test)->toEqual('value');
 
         });
 
@@ -86,31 +48,13 @@ describe('InvalidArrayMessage', function () {
 
     describe('->closure()', function () {
 
-        context('when the result ->path() method returns one key', function () {
+        it('should format the result for a closure call', function () {
 
-            it('should return an invalid argument exception for a closure call', function () {
+            $this->formatter->__invoke->with('argument 1 passed to {closure}()')->returns('value');
 
-                $this->result->path->returns(['test']);
+            $test = $this->message->closure(1);
 
-                $test = $this->message->closure(1);
-
-                expect($test)->toEqual('Argument 1 passed to {closure}() must be expected, value given for key [test]');
-
-            });
-
-        });
-
-        context('when the result ->path() method returns more than one key', function () {
-
-            it('should return an invalid argument exception for a closure call', function () {
-
-                $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                $test = $this->message->closure(1);
-
-                expect($test)->toEqual('Key [test1][test2] of argument 1 passed to {closure}() must be expected, value given for key [test3]');
-
-            });
+            expect($test)->toEqual('value');
 
         });
 
@@ -118,31 +62,15 @@ describe('InvalidArrayMessage', function () {
 
     describe('->static()', function () {
 
-        context('when the result ->path() method returns one key', function () {
+        it('should format the result for a static method call', function () {
 
-            it('should return an invalid argument exception for a closure call', function () {
+            $this->formatter->__invoke
+                ->with(sprintf('argument 1 passed to %s::%s()', Test\TestClass::class, 'method'))
+                ->returns('value');
 
-                $this->result->path->returns(['test']);
+            $test = $this->message->method(new Test\TestClass, 'method', 1);
 
-                $test = $this->message->static(Test\TestClass::class, 'method', 1);
-
-                expect($test)->toEqual('Argument 1 passed to Test\TestClass::method() must be expected, value given for key [test]');
-
-            });
-
-        });
-
-        context('when the result ->path() method returns more than one key', function () {
-
-            it('should return an invalid argument exception for a closure call', function () {
-
-                $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                $test = $this->message->static(Test\TestClass::class, 'method', 1);
-
-                expect($test)->toEqual('Key [test1][test2] of argument 1 passed to Test\TestClass::method() must be expected, value given for key [test3]');
-
-            });
+            expect($test)->toEqual('value');
 
         });
 
@@ -152,31 +80,15 @@ describe('InvalidArrayMessage', function () {
 
         context('when the given object is anonymous', function () {
 
-            context('when the result ->path() method returns one key', function () {
+            it('should format the result for an anonymous object method call', function () {
 
-                it('should return an invalid argument exception for a closure call', function () {
+                $this->formatter->__invoke
+                    ->with('argument 1 passed to class@anonymous::method()')
+                    ->returns('value');
 
-                    $this->result->path->returns(['test']);
+                $test = $this->message->method(new class {}, 'method', 1);
 
-                    $test = $this->message->method(new class {}, 'method', 1);
-
-                    expect($test)->toEqual('Argument 1 passed to class@anonymous::method() must be expected, value given for key [test]');
-
-                });
-
-            });
-
-            context('when the result ->path() method returns more than one key', function () {
-
-                it('should return an invalid argument exception for a closure call', function () {
-
-                    $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                    $test = $this->message->method(new class {}, 'method', 1);
-
-                    expect($test)->toEqual('Key [test1][test2] of argument 1 passed to class@anonymous::method() must be expected, value given for key [test3]');
-
-                });
+                expect($test)->toEqual('value');
 
             });
 
@@ -184,31 +96,15 @@ describe('InvalidArrayMessage', function () {
 
         context('when the given object is not anonymous', function () {
 
-            context('when the result ->path() method returns one key', function () {
+            it('should format the result for an object method call', function () {
 
-                it('should return an invalid argument exception for a closure call', function () {
+                $this->formatter->__invoke
+                    ->with(sprintf('argument 1 passed to %s::method()', Test\TestClass::class))
+                    ->returns('value');
 
-                    $this->result->path->returns(['test']);
+                $test = $this->message->method(new Test\TestClass, 'method', 1);
 
-                    $test = $this->message->method(new Test\TestClass, 'method', 1);
-
-                    expect($test)->toEqual('Argument 1 passed to Test\TestClass::method() must be expected, value given for key [test]');
-
-                });
-
-            });
-
-            context('when the result ->path() method returns more than one key', function () {
-
-                it('should return an invalid argument exception for a closure call', function () {
-
-                    $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                    $test = $this->message->method(new Test\TestClass, 'method', 1);
-
-                    expect($test)->toEqual('Key [test1][test2] of argument 1 passed to Test\TestClass::method() must be expected, value given for key [test3]');
-
-                });
+                expect($test)->toEqual('value');
 
             });
 
@@ -220,31 +116,15 @@ describe('InvalidArrayMessage', function () {
 
         context('when the given object is anonymous', function () {
 
-            context('when the result ->path() method returns one key', function () {
+            it('should format the result for an anonymous object constructor call', function () {
 
-                it('should return an invalid argument exception for a closure call', function () {
+                $this->formatter->__invoke
+                    ->with('argument 1 passed to class@anonymous::__construct()')
+                    ->returns('value');
 
-                    $this->result->path->returns(['test']);
+                $test = $this->message->constructor(new class {}, 1);
 
-                    $test = $this->message->constructor(new class {}, 1);
-
-                    expect($test)->toEqual('Argument 1 passed to class@anonymous::__construct() must be expected, value given for key [test]');
-
-                });
-
-            });
-
-            context('when the result ->path() method returns more than one key', function () {
-
-                it('should return an invalid argument exception for a closure call', function () {
-
-                    $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                    $test = $this->message->constructor(new class {}, 1);
-
-                    expect($test)->toEqual('Key [test1][test2] of argument 1 passed to class@anonymous::__construct() must be expected, value given for key [test3]');
-
-                });
+                expect($test)->toEqual('value');
 
             });
 
@@ -252,31 +132,15 @@ describe('InvalidArrayMessage', function () {
 
         context('when the given object is not anonymous', function () {
 
-            context('when the result ->path() method returns one key', function () {
+            it('should format the result for an object constructor call', function () {
 
-                it('should return an invalid argument exception for a closure call', function () {
+                $this->formatter->__invoke
+                    ->with(sprintf('argument 1 passed to %s::__construct()', Test\TestClass::class))
+                    ->returns('value');
 
-                    $this->result->path->returns(['test']);
+                $test = $this->message->constructor(new Test\TestClass, 1);
 
-                    $test = $this->message->constructor(new Test\TestClass, 1);
-
-                    expect($test)->toEqual('Argument 1 passed to Test\TestClass::__construct() must be expected, value given for key [test]');
-
-                });
-
-            });
-
-            context('when the result ->path() method returns more than one key', function () {
-
-                it('should return an invalid argument exception for a closure call', function () {
-
-                    $this->result->path->returns(['test1', 'test2', 'test3']);
-
-                    $test = $this->message->constructor(new Test\TestClass, 1);
-
-                    expect($test)->toEqual('Key [test1][test2] of argument 1 passed to Test\TestClass::__construct() must be expected, value given for key [test3]');
-
-                });
+                expect($test)->toEqual('value');
 
             });
 

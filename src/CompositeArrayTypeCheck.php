@@ -8,13 +8,26 @@ use Quanta\ArrayTypeCheck\ResultInterface;
 
 final class CompositeArrayTypeCheck implements ArrayTypeCheckInterface
 {
+    /**
+     * The array of array type checks to perform.
+     *
+     * @var \Quanta\ArrayTypeCheckInterface[]
+     */
     private $checks;
 
+    /**
+     * Constructor.
+     *
+     * @param \Quanta\ArrayTypeCheckInterface ...$checks
+     */
     public function __construct(ArrayTypeCheckInterface ...$checks)
     {
         $this->checks = $checks;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function checked(array $array): ResultInterface
     {
         $results = [];

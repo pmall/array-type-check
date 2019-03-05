@@ -12,36 +12,17 @@ interface ResultInterface
     public function isValid(): bool;
 
     /**
-     * Return the value having an unexpected type.
+     * Return a new result by adding the given key to its path.
      *
-     * Should throw when isValid() returns true.
-     *
-     * @return mixed
+     * @param string $key
+     * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    public function given();
-
-    /**
-     * Return the expected type.
-     *
-     * Should throw when isValid() returns true.
-     *
-     * @return string
-     */
-    public function expected(): string;
-
-    /**
-     * Return the sub key path of the value.
-     *
-     * Should throw when isValid() returns true.
-     *
-     * @return array
-     */
-    public function path(): array;
+    public function with(string $key): ResultInterface;
 
     /**
      * Return the sanitized array.
      *
-     * Should throw when isValid() returns false.
+     * Should throw when `isValid()` returns false.
      *
      * @return array
      */
@@ -50,14 +31,7 @@ interface ResultInterface
     /**
      * Return an InvalidArrayMessage.
      *
-     * Should throw when isValid() returns true.
-     *
-     * @return \Quanta\ArrayTypeCheck\InvalidArrayMessage
+     * Should throw when `isValid()` returns true.
      */
     public function message(): InvalidArrayMessage;
-
-    /**
-     * Quick fix.
-     */
-    public function isRoot(): bool;
 }

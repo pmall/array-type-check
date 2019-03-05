@@ -6,7 +6,6 @@ use Quanta\ArrayTypeCheck\Type;
 use Quanta\ArrayTypeCheck\Success;
 use Quanta\ArrayTypeCheck\Failure;
 use Quanta\ArrayTypeCheck\RootFailure;
-use Quanta\ArrayTypeCheck\NestedResult;
 use Quanta\ArrayTypeCheck\TypeInterface;
 use Quanta\ArrayTypeCheck\ResultInterface;
 
@@ -97,12 +96,11 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
 
         $value = $array[$key] ?? [];
 
-        return new NestedResult(
-            ! is_array($value)
-                ? new RootFailure($value)
-                : (new self($this->type, ...$subpath))->checked($value),
-            $key
-        );
+        if (! is_array($value)) {
+            return new RootFailure($array[$key], $key);
+        }
+
+        return $this->sub(...$subpath)->checked($value)->with($key);
     }
 
     /**
@@ -123,7 +121,18 @@ final class ArrayTypeCheck implements ArrayTypeCheckInterface
     }
 
     /**
-     * Return a composite type check from the given array and key path.
+     * Return a type check for the given path.
+     *
+     * @param string ...$path
+     * @return \Quanta\ArrayTypeCheck
+     */
+    private function sub(string ...$path): ArrayTypeCheck
+    {
+        return new self($this->type, ...$path);
+    }
+
+    /**
+     * Return a composite type check from the given array and path.
      *
      * @param array     $array
      * @param string    ...$path

@@ -7,7 +7,11 @@ describe('Success', function () {
 
     beforeEach(function () {
 
-        $this->result = new Success(['k1' => 'v1', 'k2' => 'v2', 'k3' => 'v3']);
+        $this->result = new Success([
+            'key1' => 'value1',
+            'key2' => 'value2',
+            'key3' => 'value3',
+        ]);
 
     });
 
@@ -29,31 +33,19 @@ describe('Success', function () {
 
     });
 
-    describe('->given()', function () {
+    describe('->with()', function () {
 
-        it('should throw a LogicException', function () {
+        it('should return a new Success with the given key prepending its path', function () {
 
-            expect([$this->result, 'given'])->toThrow(new LogicException);
+            $test = $this->result->with('test');
 
-        });
-
-    });
-
-    describe('->expected()', function () {
-
-        it('should throw a LogicException', function () {
-
-            expect([$this->result, 'expected'])->toThrow(new LogicException);
-
-        });
-
-    });
-
-    describe('->path()', function () {
-
-        it('should throw a LogicException', function () {
-
-            expect([$this->result, 'path'])->toThrow(new LogicException);
+            expect($test)->toEqual(new Success([
+                'test' => [
+                    'key1' => 'value1',
+                    'key2' => 'value2',
+                    'key3' => 'value3',
+                ],
+            ]));
 
         });
 
@@ -61,11 +53,15 @@ describe('Success', function () {
 
     describe('->sanitized()', function () {
 
-        it('should throw a LogicException', function () {
+        it('should return the valid array', function () {
 
             $test = $this->result->sanitized();
 
-            expect($test)->toEqual(['k1' => 'v1', 'k2' => 'v2', 'k3' => 'v3']);
+            expect($test)->toEqual([
+                'key1' => 'value1',
+                'key2' => 'value2',
+                'key3' => 'value3',
+            ]);
 
         });
 

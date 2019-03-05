@@ -5,20 +5,20 @@ namespace Quanta\ArrayTypeCheck;
 final class InvalidArrayMessage
 {
     /**
-     * The result of the array type checking.
+     * The formatter to use.
      *
-     * @var \Quanta\ArrayTypeCheck\ResultInterface
+     * @var \Quanta\ArrayTypeCheck\FailureFormatterInterface
      */
-    private $result;
+    private $formatter;
 
     /**
      * Constructor.
      *
-     * @param \Quanta\ArrayTypeCheck\ResultInterface $result
+     * @param \Quanta\ArrayTypeCheck\FailureFormatterInterface $formatter
      */
-    public function __construct(ResultInterface $result)
+    public function __construct(FailureFormatterInterface $formatter)
     {
-        $this->result = $result;
+        $this->formatter = $formatter;
     }
 
     /**
@@ -28,32 +28,7 @@ final class InvalidArrayMessage
      */
     public function source(string $source): string
     {
-        $path = $this->result->path();
-
-        if ($this->result->isRoot()) {
-            return vsprintf('Key %s of %s must be an array, %s given', [
-                implode('', array_map([$this, 'key'], $path)),
-                lcfirst($source),
-                $this->result->given(),
-            ]);
-        }
-
-        if (count($path) > 1) {
-            return vsprintf('Key %s of %s must be %s, %s given for key %s', [
-                implode('', array_map([$this, 'key'], array_slice($path, 0, -1))),
-                lcfirst($source),
-                $this->result->expected(),
-                $this->result->given(),
-                $this->key(end($path)),
-            ]);
-        }
-
-        return vsprintf('%s must be %s, %s given for key %s', [
-            ucfirst($source),
-            $this->result->expected(),
-            $this->result->given(),
-            $this->key($path[0]),
-        ]);
+        return ($this->formatter)($source);
     }
 
     /**
@@ -100,15 +75,9 @@ final class InvalidArrayMessage
      * @param int       $position
      * @return string
      */
-    public function method($object, string $method, int $position): string
+    public function method(object $object, string $method, int $position): string
     {
-        $class = get_class($object);
-
-        if (strpos($class, 'class@anonymous') !== false) {
-            $class = 'class@anonymous';
-        }
-
-        return $this->static($class, $method, $position);
+        return $this->static(Helpers::classname($object), $method, $position);
     }
 
     /**
@@ -118,19 +87,8 @@ final class InvalidArrayMessage
      * @param int       $position
      * @return string
      */
-    public function constructor($object, int $position): string
+    public function constructor(object $object, int $position): string
     {
         return $this->method($object, '__construct', $position);
-    }
-
-    /**
-     * Return the string representation of a key from the given string.
-     *
-     * @param string $key
-     * @return string
-     */
-    private function key(string $key): string
-    {
-        return sprintf('[%s]', $key);
     }
 }

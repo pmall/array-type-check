@@ -3,86 +3,194 @@
 use Quanta\ArrayTypeCheck\RootFailure;
 use Quanta\ArrayTypeCheck\ResultInterface;
 use Quanta\ArrayTypeCheck\InvalidArrayMessage;
+use Quanta\ArrayTypeCheck\RootFailureFormatter;
 
 describe('RootFailure', function () {
 
-    beforeEach(function () {
+    context('when there is no path', function () {
 
-        $this->result = new RootFailure('invalid');
+        beforeEach(function () {
 
-    });
+            $this->result = new RootFailure('invalid', 'key');
 
-    it('should implement ResultInterface', function () {
+        });
 
-        expect($this->result)->toBeAnInstanceOf(ResultInterface::class);
+        it('should implement ResultInterface', function () {
 
-    });
+            expect($this->result)->toBeAnInstanceOf(ResultInterface::class);
 
-    describe('->isValid()', function () {
+        });
 
-        it('should return false', function () {
+        describe('->isValid()', function () {
 
-            $test = $this->result->isValid();
+            it('should return false', function () {
 
-            expect($test)->toBeFalsy();
+                $test = $this->result->isValid();
+
+                expect($test)->toBeFalsy();
+
+            });
+
+        });
+
+        describe('->given()', function () {
+
+            it('should return non array value', function () {
+
+                $test = $this->result->given();
+
+                expect($test)->toEqual('invalid');
+
+            });
+
+        });
+
+        describe('->path()', function () {
+
+            it('should return an empty array', function () {
+
+                $test = $this->result->path();
+
+                expect($test)->toEqual(['key']);
+
+            });
+
+        });
+
+        describe('->with()', function () {
+
+            it('should return a new RootFailure with the given key', function () {
+
+                $test = $this->result->with('test');
+
+                expect($test)->toEqual(new RootFailure('invalid', 'key', 'test'));
+
+            });
+
+        });
+
+        describe('->sanitized()', function () {
+
+            it('should throw a LogicException', function () {
+
+                expect([$this->result, 'sanitized'])->toThrow(new LogicException);
+
+            });
+
+        });
+
+        describe('->message()', function () {
+
+            it('should return a new InvalidArrayMessage with a RootFailureFormatter', function () {
+
+                $test = $this->result->message();
+
+                expect($test)->toEqual(
+                    new InvalidArrayMessage(
+                        new RootFailureFormatter($this->result)
+                    )
+                );
+
+            });
 
         });
 
     });
 
-    describe('->given()', function () {
+    context('when there is a path', function () {
 
-        it('should return the result of gettype()', function () {
+        beforeEach(function () {
 
-            $test = $this->result->given();
-
-            expect($test)->toEqual('string');
-
-        });
-
-    });
-
-    describe('->expected()', function () {
-
-        it('should return \'array\'', function () {
-
-            $test = $this->result->expected();
-
-            expect($test)->toEqual('array');
+            $this->result = new RootFailure('invalid', 'key', ...[
+                'key1',
+                'key2',
+                'key3',
+            ]);
 
         });
 
-    });
+        it('should implement ResultInterface', function () {
 
-    describe('->path()', function () {
-
-        it('should return an empty array', function () {
-
-            $test = $this->result->path();
-
-            expect($test)->toEqual([]);
+            expect($this->result)->toBeAnInstanceOf(ResultInterface::class);
 
         });
 
-    });
+        describe('->isValid()', function () {
 
-    describe('->sanitized()', function () {
+            it('should return false', function () {
 
-        it('should throw a LogicException', function () {
+                $test = $this->result->isValid();
 
-            expect([$this->result, 'sanitized'])->toThrow(new LogicException);
+                expect($test)->toBeFalsy();
+
+            });
 
         });
 
-    });
+        describe('->given()', function () {
 
-    describe('->message()', function () {
+            it('should return non array value', function () {
 
-        it('should return an InvalidArrayMessage', function () {
+                $test = $this->result->given();
 
-            $test = $this->result->message();
+                expect($test)->toEqual('invalid');
 
-            expect($test)->toEqual(new InvalidArrayMessage($this->result));
+            });
+
+        });
+
+        describe('->path()', function () {
+
+            it('should return an empty array', function () {
+
+                $test = $this->result->path();
+
+                expect($test)->toEqual(['key1', 'key2', 'key3', 'key']);
+
+            });
+
+        });
+
+        describe('->with()', function () {
+
+            it('should return a new RootFailure with the given key', function () {
+
+                $test = $this->result->with('test');
+
+                expect($test)->toEqual(new RootFailure('invalid', 'key', ...[
+                    'test',
+                    'key1',
+                    'key2',
+                    'key3',
+                ]));
+
+            });
+
+        });
+
+        describe('->sanitized()', function () {
+
+            it('should throw a LogicException', function () {
+
+                expect([$this->result, 'sanitized'])->toThrow(new LogicException);
+
+            });
+
+        });
+
+        describe('->message()', function () {
+
+            it('should return a new InvalidArrayMessage with a RootFailureFormatter', function () {
+
+                $test = $this->result->message();
+
+                expect($test)->toEqual(
+                    new InvalidArrayMessage(
+                        new RootFailureFormatter($this->result)
+                    )
+                );
+
+            });
 
         });
 

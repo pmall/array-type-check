@@ -27,7 +27,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of booleans');
+                expect($test)->toEqual('boolean');
 
             });
 
@@ -61,34 +61,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is integer', function () {
@@ -111,7 +83,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of integers');
+                expect($test)->toEqual('integer');
 
             });
 
@@ -145,34 +117,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is double', function () {
@@ -195,7 +139,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of floats');
+                expect($test)->toEqual('double');
 
             });
 
@@ -229,34 +173,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is string', function () {
@@ -279,7 +195,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of strings');
+                expect($test)->toEqual('string');
 
             });
 
@@ -313,34 +229,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is array', function () {
@@ -363,7 +251,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of arrays');
+                expect($test)->toEqual('array');
 
             });
 
@@ -397,34 +285,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is object', function () {
@@ -447,7 +307,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of objects');
+                expect($test)->toEqual('object');
 
             });
 
@@ -481,34 +341,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is resource', function () {
@@ -531,7 +363,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of resources');
+                expect($test)->toEqual('resource');
 
             });
 
@@ -565,34 +397,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is callable', function () {
@@ -615,7 +419,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual('an array of callables');
+                expect($test)->toEqual('callable');
 
             });
 
@@ -649,34 +453,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                it('should return object', function () {
-
-                    $test = $this->type->formatted(new class {});
-
-                    expect($test)->toEqual('object');
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is an interface name', function () {
@@ -699,7 +475,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual(sprintf('an array of %s implementations', Test\TestInterface::class));
+                expect($test)->toEqual(Test\TestInterface::class);
 
             });
 
@@ -733,50 +509,6 @@ describe('Type', function () {
 
         });
 
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                context('when the given object is anonymous', function () {
-
-                    it('should return class@anonymous', function () {
-
-                        $test = $this->type->formatted(new class {});
-
-                        expect($test)->toEqual('instance of class@anonymous');
-
-                    });
-
-                });
-
-                context('when the given object is not anonymous', function () {
-
-                    it('should return object class name', function () {
-
-                        $test = $this->type->formatted(new Test\TestClass);
-
-                        expect($test)->toEqual(sprintf('instance of %s', Test\TestClass::class));
-
-                    });
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
-
-                });
-
-            });
-
-        });
-
     });
 
     context('when the type is a class name', function () {
@@ -799,7 +531,7 @@ describe('Type', function () {
 
                 $test = $this->type->str();
 
-                expect($test)->toEqual(sprintf('an array of %s instances', Test\TestClass::class));
+                expect($test)->toEqual(Test\TestClass::class);
 
             });
 
@@ -826,50 +558,6 @@ describe('Type', function () {
                     $test = $this->type->isValid(1);
 
                     expect($test)->toBeFalsy();
-
-                });
-
-            });
-
-        });
-
-        describe('->formatted()', function () {
-
-            context('when the given value is an object', function () {
-
-                context('when the given object is anonymous', function () {
-
-                    it('should return class@anonymous', function () {
-
-                        $test = $this->type->formatted(new class {});
-
-                        expect($test)->toEqual('instance of class@anonymous');
-
-                    });
-
-                });
-
-                context('when the given object is not anonymous', function () {
-
-                    it('should return object class name', function () {
-
-                        $test = $this->type->formatted(new Test\TestClass);
-
-                        expect($test)->toEqual(sprintf('instance of %s', Test\TestClass::class));
-
-                    });
-
-                });
-
-            });
-
-            context('when the given value is not an object', function () {
-
-                it('should return the result of gettype()', function () {
-
-                    $test = $this->type->formatted(1);
-
-                    expect($test)->toEqual('integer');
 
                 });
 
