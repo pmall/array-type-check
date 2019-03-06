@@ -61,16 +61,16 @@ final class FailureFormatter implements FailureFormatterInterface
                 ucfirst($source),
                 $this->expected(),
                 $this->type(),
-                Helpers::key($this->key),
+                Utils::key($this->key),
             ]);
         }
 
         return vsprintf('Key %s of %s must be %s, %s given for key %s', [
-            Helpers::path(...$this->path),
+            Utils::path(...$this->path),
             lcfirst($source),
             $this->expected(),
             $this->type(),
-            Helpers::key($this->key),
+            Utils::key($this->key),
         ]);
     }
 
@@ -83,11 +83,11 @@ final class FailureFormatter implements FailureFormatterInterface
     {
         if (is_object($this->given)) {
             if (interface_exists($this->expected) || class_exists($this->expected)) {
-                return sprintf('instance of %s', Helpers::classname($this->given));
+                return sprintf('instance of %s', Utils::classname($this->given));
             }
         }
 
-        return Helpers::type($this->given);
+        return Utils::type($this->given);
     }
 
     /**

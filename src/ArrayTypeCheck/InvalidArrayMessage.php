@@ -77,7 +77,7 @@ final class InvalidArrayMessage
      */
     public function method(object $object, string $method, int $position): string
     {
-        return $this->static(Helpers::classname($object), $method, $position);
+        return $this->static(Utils::classname($object), $method, $position);
     }
 
     /**

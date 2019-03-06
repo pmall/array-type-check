@@ -30,9 +30,9 @@ final class RootFailureFormatter implements FailureFormatterInterface
     public function __invoke(string $source): string
     {
         return vsprintf('Key %s of %s must be an array, %s given', [
-            Helpers::path(...$this->result->path()),
+            Utils::path(...$this->result->path()),
             lcfirst($source),
-            Helpers::type($this->result->given()),
+            Utils::type($this->result->given()),
         ]);
     }
 }
