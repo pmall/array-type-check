@@ -75,7 +75,7 @@ final class InvalidArrayMessage
      * @param int       $position
      * @return string
      */
-    public function method(object $object, string $method, int $position): string
+    public function method($object, string $method, int $position): string
     {
         return $this->static(Utils::classname($object), $method, $position);
     }
@@ -87,7 +87,7 @@ final class InvalidArrayMessage
      * @param int       $position
      * @return string
      */
-    public function constructor(object $object, int $position): string
+    public function constructor($object, int $position): string
     {
         return $this->method($object, '__construct', $position);
     }
