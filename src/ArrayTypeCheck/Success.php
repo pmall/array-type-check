@@ -13,4 +13,62 @@ final class Success implements ResultInterface
     {
         return true;
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function message(string $source): string
+    {
+        throw new \LogicException($this->methodCallErrorMessage());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function function(string $function, int $position): string
+    {
+        throw new \LogicException($this->methodCallErrorMessage());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function static(string $class, string $method, int $position): string
+    {
+        throw new \LogicException($this->methodCallErrorMessage());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function method($object, string $method, int $position): string
+    {
+        throw new \LogicException($this->methodCallErrorMessage());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function constructor($object, int $position): string
+    {
+        throw new \LogicException($this->methodCallErrorMessage());
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function closure(int $position): string
+    {
+        throw new \LogicException($this->methodCallErrorMessage());
+    }
+
+    /**
+     * Return the error message for an invalid method call.
+     *
+     * @return string
+     */
+    private function methodCallErrorMessage(): string
+    {
+        return 'Trying to get an error message from a successfull array type check result';
+    }
 }

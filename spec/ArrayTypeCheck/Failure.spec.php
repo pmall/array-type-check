@@ -38,7 +38,7 @@ describe('Failure', function () {
 
     });
 
-    describe('->source()', function () {
+    describe('->message()', function () {
 
         it('should proxy the type ->message() method', function () {
 
@@ -46,7 +46,7 @@ describe('Failure', function () {
                 ->with('source', 'key', 'value')
                 ->returns('message');
 
-            $test = $this->result->source('source');
+            $test = $this->result->message('source');
 
             expect($test)->toEqual('message');
 
@@ -63,22 +63,6 @@ describe('Failure', function () {
                 ->returns('message');
 
             $test = $this->result->function('test', 2);
-
-            expect($test)->toEqual('message');
-
-        });
-
-    });
-
-    describe('->closure()', function () {
-
-        it('should proxy the type ->message() method', function () {
-
-            $this->type->message
-                ->with('Argument 2 passed to {closure}()', 'key', 'value')
-                ->returns('message');
-
-            $test = $this->result->closure(2);
 
             expect($test)->toEqual('message');
 
@@ -169,6 +153,22 @@ describe('Failure', function () {
                 expect($test)->toEqual('message');
 
             });
+
+        });
+
+    });
+
+    describe('->closure()', function () {
+
+        it('should proxy the type ->message() method', function () {
+
+            $this->type->message
+                ->with('Argument 2 passed to {closure}()', 'key', 'value')
+                ->returns('message');
+
+            $test = $this->result->closure(2);
+
+            expect($test)->toEqual('message');
 
         });
 
