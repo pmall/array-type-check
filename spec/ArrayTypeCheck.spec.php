@@ -3,117 +3,96 @@
 use function Eloquent\Phony\Kahlan\mock;
 
 use Quanta\ArrayTypeCheck;
-use Quanta\ArrayTypeCheckInterface;
-use Quanta\ArrayTypeCheck\Type;
-use Quanta\ArrayTypeCheck\Success;
-use Quanta\ArrayTypeCheck\Failure;
-use Quanta\ArrayTypeCheck\RootFailure;
-use Quanta\ArrayTypeCheck\TypeInterface;
+use Quanta\ArrayTypeCheck\{
+    Success,
+    Failure,
+    CustomType,
+    BuiltInType,
+    CallableType,
+    TypeInterface,
+};
 
-describe('ArrayTypeCheck::result()', function () {
+require_once __DIR__ . '/.test/classes.php';
 
-    context('when the type check is a success', function () {
+describe('ArrayTypeCheck::type()', function () {
 
-        it('should return a success', function () {
+    context('when the given type is callable', function () {
 
-            $test = ArrayTypeCheck::result(['valid', 'valid', 'valid'], 'string');
+        it('should return an ArrayTypeCheck with a CallableType', function () {
 
-            expect($test)->toEqual(new Success(['valid', 'valid', 'valid']));
+            $test = ArrayTypeCheck::type('callable');
 
-        });
-
-    });
-
-    context('when the type check is a failure', function () {
-
-        it('should return a failure', function () {
-
-            $test = ArrayTypeCheck::result(['valid', 1, 'valid'], 'string');
-
-            expect($test)->toEqual(new Failure(1, new Type('string'), '1'));
+            expect($test)->toEqual(new ArrayTypeCheck(
+                new CallableType
+            ));
 
         });
 
     });
 
-});
+    context('when the given type is built in', function () {
 
-describe('ArrayTypeCheck::nested()', function () {
+        it('should return an ArrayTypeCheck with a BuiltInType', function () {
 
-    context('when all the path of the given array are strings', function () {
+            $test = function (string $type) {
+                return ArrayTypeCheck::type($type);
+            };
 
-        context('when the type check is a success', function () {
+            $expected = function (string $type) {
+                return new ArrayTypeCheck(new BuiltInType($type));
+            };
 
-            it('should return a success', function () {
-
-                $array = [
-                    'key1' => [
-                        'key11' => ['key' => ['valid', 'valid', 'valid']],
-                        'key12' => ['key' => ['valid', 'valid', 'valid']],
-                        'key13' => ['key' => ['valid', 'valid', 'valid']],
-                    ],
-                    'key2' => [
-                        'key21' => ['key' => ['valid', 'valid', 'valid']],
-                        'key22' => ['key' => ['valid', 'valid', 'valid']],
-                        'key23' => ['key' => ['valid', 'valid', 'valid']],
-                    ],
-                ];
-
-                $test = ArrayTypeCheck::nested($array, [
-                    'key1.*.key' => 'string',
-                    'key2.*.key' => 'string',
-                ]);
-
-                expect($test)->toEqual(new Success($array));
-
-            });
-
-        });
-
-        context('when the type check is a failure', function () {
-
-            it('should return a failure', function () {
-
-                $array = [
-                    'key1' => [
-                        'key11' => ['key' => ['valid', 'valid', 'valid']],
-                        'key12' => ['key' => ['valid', 'valid', 'valid']],
-                        'key13' => ['key' => ['valid', 'valid', 'valid']],
-                    ],
-                    'key2' => [
-                        'key21' => ['key' => ['valid', 'valid', 'valid']],
-                        'key22' => ['key' => ['valid', 1, 'valid']],
-                        'key23' => ['key' => ['valid', 'valid', 'valid']],
-                    ],
-                ];
-
-                $test = ArrayTypeCheck::nested($array, [
-                    'key1.*.key' => 'string',
-                    'key2.*.key' => 'string',
-                ]);
-
-                expect($test)->toEqual(new Failure(1, new Type('string'), '1', ...[
-                    'key2',
-                    'key22',
-                    'key',
-                ]));
-
-            });
+            expect($test('bool'))->toEqual($expected('bool'));
+            expect($test('boolean'))->toEqual($expected('boolean'));
+            expect($test('int'))->toEqual($expected('int'));
+            expect($test('integer'))->toEqual($expected('integer'));
+            expect($test('float'))->toEqual($expected('float'));
+            expect($test('double'))->toEqual($expected('double'));
+            expect($test('string'))->toEqual($expected('string'));
+            expect($test('array'))->toEqual($expected('array'));
+            expect($test('object'))->toEqual($expected('object'));
+            expect($test('resource'))->toEqual($expected('resource'));
+            expect($test('null'))->toEqual($expected('null'));
+            expect($test('NULL'))->toEqual($expected('NULL'));
 
         });
 
     });
 
-    context('when a path of the given array is not a string', function () {
+    context('when the given type is an interface name', function () {
+
+        it('should return an ArrayTypeCheck with a CustomType', function () {
+
+            $test = ArrayTypeCheck::type(Test\SomeInterface::class);
+
+            expect($test)->toEqual(new ArrayTypeCheck(
+                new CustomType(Test\SomeInterface::class)
+            ));
+
+        });
+
+    });
+
+    context('when the given type is a class name', function () {
+
+        it('should return an ArrayTypeCheck with a CustomType', function () {
+
+            $test = ArrayTypeCheck::type(Test\SomeClass::class);
+
+            expect($test)->toEqual(new ArrayTypeCheck(
+                new CustomType(Test\SomeClass::class))
+            );
+
+        });
+
+    });
+
+    context('when the given type is invalid', function () {
 
         it('should throw an InvalidArgumentException', function () {
 
             $test = function () {
-                ArrayTypeCheck::nested([], [
-                    'key1.*.key' => 'string',
-                    'key2.*.key' => 1,
-                    'key3.*.key' => 'string',
-                ]);
+                ArrayTypeCheck::type('test');
             };
 
             expect($test)->toThrow(new InvalidArgumentException);
@@ -130,376 +109,47 @@ describe('ArrayTypeCheck', function () {
 
         $this->type = mock(TypeInterface::class);
 
-        $this->type->isValid->with('valid')->returns(true);
-        $this->type->isValid->with('invalid')->returns(false);
+        $this->check = new ArrayTypeCheck($this->type->get());
 
     });
 
-    context('when there is no path', function () {
+    describe('->on()', function () {
 
-        beforeEach(function () {
+        context('when the given array values are all typed as expected', function () {
 
-            $this->check = new ArrayTypeCheck($this->type->get());
+            it('should return a success', function () {
 
-        });
+                $this->type->isAccepting->with('value1')->returns(true);
+                $this->type->isAccepting->with('value2')->returns(true);
+                $this->type->isAccepting->with('value3')->returns(true);
 
-        it('should implement ArrayTypeCheckInterface', function () {
+                $test = $this->check->on([
+                    'k1' => 'value1',
+                    'k2' => 'value2',
+                    'k3' => 'value3',
+                ]);
 
-            expect($this->check)->toBeAnInstanceOf(ArrayTypeCheckInterface::class);
-
-        });
-
-        describe('->checked()', function () {
-
-            context('when the given array is empty', function () {
-
-                it('should return a success', function () {
-
-                    $test = $this->check->checked([]);
-
-                    expect($test)->toEqual(new Success([]));
-
-                });
-
-            });
-
-            context('when the given array is not empty', function () {
-
-                context('when all the values of the given array are valid', function () {
-
-                    it('should return a success', function () {
-
-                        $test = $this->check->checked(['valid', 'valid', 'valid']);
-
-                        expect($test)->toEqual(new Success(['valid', 'valid', 'valid']));
-
-                    });
-
-                });
-
-                context('when a value of the given array is not valid', function () {
-
-                    it('should return a failure', function () {
-
-                        $test = $this->check->checked(['valid', 'invalid', 'valid']);
-
-                        expect($test)->toEqual(new Failure('invalid', $this->type->get(), '1'));
-
-                    });
-
-                });
+                expect($test)->toEqual(new Success);
 
             });
 
         });
 
-    });
+        context('when the given array values are all typed as expected', function () {
 
-    context('when there is a path', function () {
+            it('should return a failure', function () {
 
-        context('when no key of the path is *', function () {
+                $this->type->isAccepting->with('value1')->returns(true);
+                $this->type->isAccepting->with('value2')->returns(false);
+                $this->type->isAccepting->with('value3')->returns(true);
 
-            beforeEach(function () {
+                $test = $this->check->on([
+                    'k1' => 'value1',
+                    'k2' => 'value2',
+                    'k3' => 'value3',
+                ]);
 
-                $this->check = new ArrayTypeCheck($this->type->get(), 'key1', 'key2', 'key3');
-
-            });
-
-            it('should implement ArrayTypeCheckInterface', function () {
-
-                expect($this->check)->toBeAnInstanceOf(ArrayTypeCheckInterface::class);
-
-            });
-
-            describe('->checked()', function () {
-
-                context('when the given array does not contain all the keys of the path', function () {
-
-                    context('when all the keys of the path are associated to arrays', function () {
-
-                        it('should return a success', function () {
-
-                            $test = $this->check->checked(['key1' => []]);
-
-                            expect($test)->toEqual(new Success([
-                                'key1' => ['key2' => ['key3' => []]],
-                            ]));
-
-                        });
-
-                    });
-
-                    context('when a key of the path is not associated to an array', function () {
-
-                        it('should return a root failure', function () {
-
-                            $test = $this->check->checked(['key1' => ['key2' => 'invalid']]);
-
-                            expect($test)->toEqual(new RootFailure('invalid', 'key2', ...[
-                                'key1',
-                            ]));
-
-                        });
-
-                    });
-
-                });
-
-                context('when the given array contains all the keys of the path', function () {
-
-                    context('when all the keys of the path are associated to arrays', function () {
-
-                        context('when the nested array is empty', function () {
-
-                            it('should return a success', function () {
-
-                                $test = $this->check->checked(['key1' => ['key2' => ['key3' => []]]]);
-
-                                expect($test)->toEqual(new Success([
-                                    'key1' => ['key2' => ['key3' => []]],
-                                ]));
-
-                            });
-
-                        });
-
-                        context('when the nested array is not empty', function () {
-
-                            context('when all the values of the given array are valid', function () {
-
-                                it('should return a success', function () {
-
-                                    $test = $this->check->checked([
-                                        'key1' => [
-                                            'key2' => [
-                                                'key3' => ['valid', 'valid', 'valid'],
-                                            ],
-                                        ],
-                                    ]);
-
-                                    expect($test)->toEqual(new Success([
-                                        'key1' => [
-                                            'key2' => [
-                                                'key3' => ['valid', 'valid', 'valid'],
-                                            ],
-                                        ],
-                                    ]));
-
-                                });
-
-                            });
-
-                            context('when a value of the given array is not valid', function () {
-
-                                it('should return a failure', function () {
-
-                                    $test = $this->check->checked([
-                                        'key1' => [
-                                            'key2' => [
-                                                'key3' => ['valid', 'invalid', 'valid'],
-                                            ],
-                                        ],
-                                    ]);
-
-                                    expect($test)->toEqual(new Failure('invalid', $this->type->get(), '1', ...[
-                                        'key1',
-                                        'key2',
-                                        'key3',
-                                    ]));
-
-                                });
-
-                            });
-
-                        });
-
-                    });
-
-                    context('when a key of the path is not associated to an array', function () {
-
-                        it('should return a root failure', function () {
-
-                            $test = $this->check->checked(['key1' => ['key2' => ['key3' => 'invalid']]]);
-
-                            expect($test)->toEqual(new RootFailure('invalid', 'key3', ...[
-                                'key1',
-                                'key2',
-                            ]));
-
-                        });
-
-                    });
-
-                });
-
-            });
-
-        });
-
-        context('when a key of the path is *', function () {
-
-            beforeEach(function () {
-
-                $this->check = new ArrayTypeCheck($this->type->get(), 'key1', 'key2', '*', 'key3');
-
-            });
-
-            it('should implement ArrayTypeCheckInterface', function () {
-
-                expect($this->check)->toBeAnInstanceOf(ArrayTypeCheckInterface::class);
-
-            });
-
-            describe('->checked()', function () {
-
-                context('when the given array does not contain all the keys of the path', function () {
-
-                    context('when all the keys of the path are associated to arrays', function () {
-
-                        it('should return a success', function () {
-
-                            $test = $this->check->checked(['key1' => []]);
-
-                            expect($test)->toEqual(new Success([
-                                'key1' => ['key2' => []]
-                            ]));
-
-                        });
-
-                    });
-
-                    context('when a key of the path is not associated to an array', function () {
-
-                        it('should return a root failure', function () {
-
-                            $test = $this->check->checked(['key1' => ['key2' => 'invalid']]);
-
-                            expect($test)->toEqual(new RootFailure('invalid', 'key2', ...[
-                                'key1',
-                            ]));
-
-                        });
-
-                    });
-
-                });
-
-                context('when the given array contains all the keys of the path', function () {
-
-                    context('when all the keys of the path are associated to arrays', function () {
-
-                        context('when the nested array is empty', function () {
-
-                            it('should return a success', function () {
-
-                                $test = $this->check->checked([
-                                    'key1' => [
-                                        'key2' => [
-                                            ['key3' => []],
-                                            ['key3' => []],
-                                            ['key3' => []],
-                                        ],
-                                    ],
-                                ]);
-
-                                expect($test)->toEqual(new Success([
-                                    'key1' => [
-                                        'key2' => [
-                                            ['key3' => []],
-                                            ['key3' => []],
-                                            ['key3' => []],
-                                        ],
-                                    ],
-                                ]));
-
-                            });
-
-                        });
-
-                        context('when the nested array is not empty', function () {
-
-                            context('when all the values of the given array are valid', function () {
-
-                                it('should return a success', function () {
-
-                                    $test = $this->check->checked([
-                                        'key1' => [
-                                            'key2' => [
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                            ],
-                                        ],
-                                    ]);
-
-                                    expect($test)->toEqual(new Success([
-                                        'key1' => [
-                                            'key2' => [
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                            ],
-                                        ],
-                                    ]));
-
-                                });
-
-                            });
-
-                            context('when a value of the given array is not valid', function () {
-
-                                it('should return a failure', function () {
-
-                                    $test = $this->check->checked([
-                                        'key1' => [
-                                            'key2' => [
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                                ['key3' => ['valid', 'invalid', 'valid']],
-                                                ['key3' => ['valid', 'valid', 'valid']],
-                                            ],
-                                        ],
-                                    ]);
-
-                                    expect($test)->toEqual(new Failure('invalid', $this->type->get(), '1', ...[
-                                        'key1',
-                                        'key2',
-                                        '1',
-                                        'key3',
-                                    ]));
-
-                                });
-
-                            });
-
-                        });
-
-                    });
-
-                    context('when a key of the path is not associated to an array', function () {
-
-                        it('should return a root failure', function () {
-
-                            $test = $this->check->checked([
-                                'key1' => [
-                                    'key2' => [
-                                        ['key3' => ['valid', 'valid', 'valid']],
-                                        ['key3' => 'invalid'],
-                                        ['key3' => ['valid', 'valid', 'valid']],
-                                    ],
-                                ],
-                            ]);
-
-                            expect($test)->toEqual(new RootFailure('invalid', 'key3', ...[
-                                'key1',
-                                'key2',
-                                '1',
-                            ]));
-
-                        });
-
-                    });
-
-                });
+                expect($test)->toEqual(new Failure($this->type->get(), 'k2', 'value2'));
 
             });
 

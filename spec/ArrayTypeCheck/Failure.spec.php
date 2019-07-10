@@ -2,11 +2,13 @@
 
 use function Eloquent\Phony\Kahlan\mock;
 
-use Quanta\ArrayTypeCheck\Failure;
-use Quanta\ArrayTypeCheck\TypeInterface;
-use Quanta\ArrayTypeCheck\ResultInterface;
-use Quanta\ArrayTypeCheck\FailureFormatter;
-use Quanta\ArrayTypeCheck\InvalidArrayMessage;
+use Quanta\ArrayTypeCheck\{
+    Failure,
+    TypeInterface,
+    ResultInterface,
+};
+
+require_once __DIR__ . '/../.test/classes.php';
 
 describe('Failure', function () {
 
@@ -14,226 +16,157 @@ describe('Failure', function () {
 
         $this->type = mock(TypeInterface::class);
 
+        $this->result = new Failure($this->type->get(), 'key', 'value');
+
     });
 
-    context('when there is no path', function () {
+    it('should implement ResultInterface', function () {
 
-        beforeEach(function () {
+        expect($this->result)->toBeAnInstanceOf(ResultInterface::class);
 
-            $this->result = new Failure('invalid', $this->type->get(), 'key');
+    });
 
-        });
+    describe('->isValid()', function () {
 
-        it('should implement ResultInterface', function () {
+        it('should be falsy', function () {
 
-            expect($this->result)->toBeAnInstanceOf(ResultInterface::class);
+            $test = $this->result->isValid();
 
-        });
-
-        describe('->isValid()', function () {
-
-            it('should return false', function () {
-
-                $test = $this->result->isValid();
-
-                expect($test)->toBeFalsy();
-
-            });
-
-        });
-
-        describe('->given()', function () {
-
-            it('should return the value with an invalid type', function () {
-
-                $test = $this->result->given();
-
-                expect($test)->toEqual('invalid');
-
-            });
-
-        });
-
-        describe('->expected()', function () {
-
-            it('should return the string representation of the type', function () {
-
-                $this->type->str->returns('type');
-
-                $test = $this->result->expected();
-
-                expect($test)->toEqual('type');
-
-            });
-
-        });
-
-        describe('->path()', function () {
-
-            it('should return an array containing the key', function () {
-
-                $test = $this->result->path();
-
-                expect($test)->toEqual(['key']);
-
-            });
-
-        });
-
-        describe('->with()', function () {
-
-            it('should return a new Failure with the given key', function () {
-
-                $test = $this->result->with('test');
-
-                expect($test)->toEqual(new Failure('invalid', $this->type->get(), 'key', 'test'));
-
-            });
-
-        });
-
-        describe('->sanitized()', function () {
-
-            it('should throw a LogicException', function () {
-
-                expect([$this->result, 'sanitized'])->toThrow(new LogicException);
-
-            });
-
-        });
-
-        describe('->message()', function () {
-
-            it('should return a new InvalidArrayMessage with a FailureFormatter', function () {
-
-                $this->type->str->returns('type');
-
-                $test = $this->result->message();
-
-                expect($test)->toEqual(
-                    new InvalidArrayMessage(
-                        new FailureFormatter('invalid', 'type', 'key')
-                    )
-                );
-
-            });
+            expect($test)->toBeFalsy();
 
         });
 
     });
 
-    context('when there is a path', function () {
+    describe('->source()', function () {
 
-        beforeEach(function () {
+        it('should proxy the type ->message() method', function () {
 
-            $this->result = new Failure('invalid', $this->type->get(), 'key', ...[
-                'key1',
-                'key2',
-                'key3',
-            ]);
+            $this->type->message
+                ->with('source', 'key', 'value')
+                ->returns('message');
 
-        });
+            $test = $this->result->source('source');
 
-        it('should implement ResultInterface', function () {
-
-            expect($this->result)->toBeAnInstanceOf(ResultInterface::class);
+            expect($test)->toEqual('message');
 
         });
 
-        describe('->isValid()', function () {
+    });
 
-            it('should return false', function () {
+    describe('->function()', function () {
 
-                $test = $this->result->isValid();
+        it('should proxy the type ->message() method', function () {
 
-                expect($test)->toBeFalsy();
+            $this->type->message
+                ->with('Argument 2 passed to test()', 'key', 'value')
+                ->returns('message');
+
+            $test = $this->result->function('test', 2);
+
+            expect($test)->toEqual('message');
+
+        });
+
+    });
+
+    describe('->closure()', function () {
+
+        it('should proxy the type ->message() method', function () {
+
+            $this->type->message
+                ->with('Argument 2 passed to {closure}()', 'key', 'value')
+                ->returns('message');
+
+            $test = $this->result->closure(2);
+
+            expect($test)->toEqual('message');
+
+        });
+
+    });
+
+    describe('->static()', function () {
+
+        it('should proxy the type ->message() method', function () {
+
+            $this->type->message
+                ->with('Argument 2 passed to Test\SomeClass::test()', 'key', 'value')
+                ->returns('message');
+
+            $test = $this->result->static(Test\SomeClass::class, 'test', 2);
+
+            expect($test)->toEqual('message');
+
+        });
+
+    });
+
+    describe('->method()', function () {
+
+        context('when the object is anonymous', function () {
+
+            it('should proxy the type ->message() method', function () {
+
+                $this->type->message
+                    ->with('Argument 2 passed to class@anonymous::test()', 'key', 'value')
+                    ->returns('message');
+
+                $test = $this->result->method(new class {}, 'test', 2);
+
+                expect($test)->toEqual('message');
 
             });
 
         });
 
-        describe('->given()', function () {
+        context('when the object is not anonymous', function () {
 
-            it('should return the value with an invalid type', function () {
+            it('should proxy the type ->message() method', function () {
 
-                $test = $this->result->given();
+                $this->type->message
+                    ->with('Argument 2 passed to Test\SomeClass::test()', 'key', 'value')
+                    ->returns('message');
 
-                expect($test)->toEqual('invalid');
+                $test = $this->result->method(new Test\SomeClass, 'test', 2);
 
-            });
-
-        });
-
-        describe('->expected()', function () {
-
-            it('should return the string representation of the type', function () {
-
-                $this->type->str->returns('type');
-
-                $test = $this->result->expected();
-
-                expect($test)->toEqual('type');
+                expect($test)->toEqual('message');
 
             });
 
         });
 
-        describe('->path()', function () {
+    });
 
-            it('should return an array containing the key', function () {
+    describe('->constructor()', function () {
 
-                $test = $this->result->path();
+        context('when the object is anonymous', function () {
 
-                expect($test)->toEqual(['key1', 'key2', 'key3', 'key']);
+            it('should proxy the type ->message() method', function () {
 
-            });
+                $this->type->message
+                    ->with('Argument 2 passed to class@anonymous::__construct()', 'key', 'value')
+                    ->returns('message');
 
-        });
+                $test = $this->result->constructor(new class {}, 2);
 
-        describe('->with()', function () {
-
-            it('should return a new Failure with the given key', function () {
-
-                $test = $this->result->with('test');
-
-                expect($test)->toEqual(new Failure('invalid', $this->type->get(), 'key', ...[
-                    'test',
-                    'key1',
-                    'key2',
-                    'key3',
-                ]));
+                expect($test)->toEqual('message');
 
             });
 
         });
 
-        describe('->sanitized()', function () {
+        context('when the object is not anonymous', function () {
 
-            it('should throw a LogicException', function () {
+            it('should proxy the type ->message() method', function () {
 
-                expect([$this->result, 'sanitized'])->toThrow(new LogicException);
+                $this->type->message
+                    ->with('Argument 2 passed to Test\SomeClass::__construct()', 'key', 'value')
+                    ->returns('message');
 
-            });
+                $test = $this->result->constructor(new Test\SomeClass, 2);
 
-        });
-
-        describe('->message()', function () {
-
-            it('should return a new InvalidArrayMessage with a FailureFormatter', function () {
-
-                $this->type->str->returns('type');
-
-                $test = $this->result->message();
-
-                expect($test)->toEqual(
-                    new InvalidArrayMessage(
-                        new FailureFormatter('invalid', 'type', 'key', ...[
-                            'key1',
-                            'key2',
-                            'key3',
-                        ])
-                    )
-                );
+                expect($test)->toEqual('message');
 
             });
 

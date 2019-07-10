@@ -1,16 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Quanta\ArrayTypeCheck;
 
 final class Failure implements ResultInterface
 {
-    /**
-     * The value with an invalid type.
-     *
-     * @var mixed
-     */
-    private $given;
-
     /**
      * The expected type.
      *
@@ -19,57 +14,31 @@ final class Failure implements ResultInterface
     private $type;
 
     /**
-     * The key of the value having an unexpected type.
+     * The key of the value with an invalid type.
      *
      * @var string
      */
     private $key;
 
     /**
-     * The path of the invalid array.
+     * The value with an invalid type.
      *
-     * @var string[]
+     * @var mixed
      */
-    private $path;
+    private $value;
 
     /**
      * Constructor.
      *
-     * @param mixed                                 $given
      * @param \Quanta\ArrayTypeCheck\TypeInterface  $type
      * @param string                                $key
-     * @param string                                ...$path
+     * @param mixed                                 $value
      */
-    public function __construct($given, TypeInterface $type, string $key, string ...$path)
+    public function __construct(TypeInterface $type, string $key, $value)
     {
-        $this->given = $given;
         $this->type = $type;
         $this->key = $key;
-        $this->path = $path;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function given()
-    {
-        return $this->given;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function expected(): string
-    {
-        return $this->type->str();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function path(): array
-    {
-        return array_merge($this->path, [$this->key]);
+        $this->value = $value;
     }
 
     /**
@@ -81,33 +50,73 @@ final class Failure implements ResultInterface
     }
 
     /**
-     * @inheritdoc
+     * Return an error message for the array coming from the given source.
+     *
+     * @return string
      */
-    public function with(string $key): ResultInterface
+    public function source(string $source): string
     {
-        return new Failure($this->given, $this->type, $this->key, $key, ...$this->path);
+        return $this->type->message($source, $this->key, $this->value);
     }
 
     /**
-     * @inheritdoc
+     * Return an invalid argument exception message for a function call.
+     *
+     * @param string    $function
+     * @param int       $position
+     * @return string
      */
-    public function sanitized(): array
+    public function function(string $function, int $position): string
     {
-        throw new \LogicException('The array is not valid');
+        return $this->source(sprintf('Argument %s passed to %s()', $position, $function));
     }
 
     /**
-     * @inheritdoc
+     * Return an invalid argument exception message for a closure call.
+     *
+     * @param int $position
+     * @return string
      */
-    public function message(): InvalidArrayMessage
+    public function closure(int $position): string
     {
-        return new InvalidArrayMessage(
-            new FailureFormatter(
-                $this->given,
-                $this->type->str(),
-                $this->key,
-                ...$this->path
-            )
-        );
+        return $this->function('{closure}', $position);
+    }
+
+    /**
+     * Return an invalid argument exception message for a static method call.
+     *
+     * @param string    $class
+     * @param string    $method
+     * @param int       $position
+     * @return string
+     */
+    public function static(string $class, string $method, int $position): string
+    {
+        return $this->function(sprintf('%s::%s', $class, $method), $position);
+    }
+
+    /**
+     * Return an invalid argument exception message for a method call.
+     *
+     * @param object    $object
+     * @param string    $method
+     * @param int       $position
+     * @return string
+     */
+    public function method($object, string $method, int $position): string
+    {
+        return $this->static((string) new ClassName($object), $method, $position);
+    }
+
+    /**
+     * Return an invalid argument exception message for a constructor call.
+     *
+     * @param object    $object
+     * @param int       $position
+     * @return string
+     */
+    public function constructor($object, int $position): string
+    {
+        return $this->method($object, '__construct', $position);
     }
 }

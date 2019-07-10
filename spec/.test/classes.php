@@ -1,13 +1,7 @@
-<?php declare(strict_types=1);
+<?php
 
 namespace Test;
 
-interface TestInterface
-{
-    //
-}
+interface SomeInterface {}
 
-final class TestClass
-{
-    //
-}
+final class SomeClass {}

@@ -1,151 +1,116 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace Quanta;
 
-use Quanta\ArrayTypeCheck\Type;
-use Quanta\ArrayTypeCheck\Success;
-use Quanta\ArrayTypeCheck\Failure;
-use Quanta\ArrayTypeCheck\RootFailure;
-use Quanta\ArrayTypeCheck\TypeInterface;
-use Quanta\ArrayTypeCheck\ResultInterface;
+use Quanta\ArrayTypeCheck\{
+    Success,
+    Failure,
+    CustomType,
+    BuiltInType,
+    CallableType,
+    TypeInterface,
+    ResultInterface,
+};
 
-final class ArrayTypeCheck implements ArrayTypeCheckInterface
+final class ArrayTypeCheck
 {
     /**
-     * The type all the array values are expected to have.
+     * The type to check.
      *
      * @var \Quanta\ArrayTypeCheck\TypeInterface
      */
     private $type;
 
     /**
-     * The key path where the array to type check is located.
+     * Return a new array type check for the given type.
      *
-     * @var string[]
-     */
-    private $path;
-
-    /**
-     * Type check the given array against the given type.
+     * Allow cleaner call to ::on()
      *
-     * @param array     $array
-     * @param string    $type
-     * @return \Quanta\ArrayTypeCheck\ResultInterface
-     */
-    public static function result(array $array, string $type): ResultInterface
-    {
-        return (new self(new Type($type)))->checked($array);
-    }
-
-    /**
-     * Type check the given key paths against their associated type.
-     *
-     * @param array     $array
-     * @param string[]  $paths
-     * @return \Quanta\ArrayTypeCheck\ResultInterface
+     * @param string $type
+     * @return \Quanta\ArrayTypeCheck
      * @throws \InvalidArgumentException
      */
-    public static function nested(array $array, array $paths): ResultInterface
+    public static function type(string $type): self
     {
-        $result = self::result($paths, 'string');
-
-        if (! $result->isValid()) {
-            throw new \InvalidArgumentException(
-                $result->message()->static(self::class, 'nested', 2)
-            );
+        if ($type == 'callable') {
+            return new self(new CallableType);
         }
 
-        $checks = [];
-
-        foreach ($paths as $path => $type) {
-            $checks[] = new self(new Type($type), ...explode('.', $path));
+        try {
+            return new self(new BuiltInType($type));
         }
 
-        return (new CompositeArrayTypeCheck(...$checks))->checked($array);
+        catch (\InvalidArgumentException $e) {}
+
+        try {
+            return new self(new CustomType($type));
+        }
+
+        catch (\InvalidArgumentException $e) {}
+
+        $tpl = implode(' ', [
+            'Argument 1 passed to %s::type() is invalid,',
+            'it must be either a return value of gettype(),',
+            '\'callable\',',
+            'an interface name or',
+            'a class name',
+        ]);
+
+        throw new \InvalidArgumentException(
+            sprintf($tpl, self::class)
+        );
     }
 
     /**
      * Constructor.
      *
-     * @param \Quanta\ArrayTypeCheck\TypeInterface  $type
-     * @param string                                ...$path
+     * @param \Quanta\ArrayTypeCheck\TypeInterface $type
+     * @throws \InvalidArgumentException
      */
-    public function __construct(TypeInterface $type, string ...$path)
+    public function __construct(TypeInterface $type)
     {
         $this->type = $type;
-        $this->path = $path;
     }
 
     /**
-     * @inheritdoc
-     */
-    public function checked(array $array): ResultInterface
-    {
-        if (count($this->path) == 0) {
-            return count($invalid = $this->invalidKeys($array)) == 0
-                ? new Success($array)
-                : new Failure($array[$invalid[0]], $this->type, (string) $invalid[0]);
-        }
-
-        $key = $this->path[0];
-        $subpath = array_slice($this->path, 1);
-
-        if ($key == '*') {
-            return $this->exploded($array, ...$subpath)->checked($array);
-        }
-
-        $value = $array[$key] ?? [];
-
-        if (! is_array($value)) {
-            return new RootFailure($array[$key], $key);
-        }
-
-        return $this->sub(...$subpath)->checked($value)->with($key);
-    }
-
-    /**
-     * Return the keys of the given array which are associated to a value not
-     * passing the type check.
+     * Return the result of type checking all the values of the given array.
      *
-     * @param array $array
-     * @return (int|string)[]
+     * @param array $values
+     * @return \Quanta\ArrayTypeCheck\ResultInterface
      */
-    private function invalidKeys(array $array): array
+    public function on(array $values): ResultInterface
     {
-        return array_values(
-            array_diff(
-                array_keys($array),
-                array_keys(array_filter($array, [$this->type, 'isValid']))
+        $invalid = array_diff_key(
+            $values,
+            array_filter(
+                array_map([$this->type, 'isAccepting'], $values)
             )
         );
+
+        return count($invalid) > 0
+            ? new Failure($this->type, (string) key($invalid), current($invalid))
+            : new Success;
     }
 
     /**
-     * Return a type check for the given path.
+     * Return the invalid type error message.
      *
-     * @param string ...$path
-     * @return \Quanta\ArrayTypeCheck
+     * @param string    $method
+     * @param int       $position
+     * @return string
      */
-    private function sub(string ...$path): ArrayTypeCheck
+    private function invalidTypeErrorMessage(string $method, int $position): string
     {
-        return new self($this->type, ...$path);
-    }
+        $tpl = implode(' ', [
+            'Argument %s passed to %s::%s() is not a valid type,',
+            'it must be either a return value of gettype(),',
+            'the \'callable\' string,',
+            'an interface name or',
+            'a class name',
+        ]);
 
-    /**
-     * Return a composite type check from the given array and path.
-     *
-     * @param array     $array
-     * @param string    ...$path
-     * @return \Quanta\CompositeArrayTypeCheck
-     */
-    private function exploded(array $array, string ...$path): CompositeArrayTypeCheck
-    {
-        $checks = [];
-
-        foreach (array_keys($array) as $key) {
-            $checks[] = new self($this->type, (string) $key, ...$path);
-        }
-
-        return new CompositeArrayTypeCheck(...$checks);
+        return sprintf($tpl, $position, self::class, $method);
     }
 }
