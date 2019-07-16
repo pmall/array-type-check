@@ -19,13 +19,25 @@ describe('Success', function () {
 
     });
 
-    describe('->isValid()', function () {
+    describe('->isSuccess()', function () {
 
         it('should be truthy', function () {
 
-            $test = $this->result->isValid();
+            $test = $this->result->isSuccess();
 
             expect($test)->toBeTruthy();
+
+        });
+
+    });
+
+    describe('->isFailure()', function () {
+
+        it('should be falsy', function () {
+
+            $test = $this->result->isFailure();
+
+            expect($test)->toBeFalsy();
 
         });
 

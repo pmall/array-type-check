@@ -7,11 +7,18 @@ namespace Quanta\ArrayTypeCheck;
 interface ResultInterface
 {
     /**
-     * Return whether all the values of the array are typed as expected.
+     * Return whether the result is a success.
      *
      * @return bool
      */
-    public function isValid(): bool;
+    public function isSuccess(): bool;
+
+    /**
+     * Return whether the result is a failure.
+     *
+     * @return bool
+     */
+    public function isFailure(): bool;
 
     /**
      * Return an exception message for the given source.

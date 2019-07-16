@@ -44,9 +44,17 @@ final class Failure implements ResultInterface
     /**
      * @inheritdoc
      */
-    public function isValid(): bool
+    public function isSuccess(): bool
     {
         return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isFailure(): bool
+    {
+        return true;
     }
 
     /**

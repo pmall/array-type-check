@@ -9,9 +9,17 @@ final class Success implements ResultInterface
     /**
      * @inheritdoc
      */
-    public function isValid(): bool
+    public function isSuccess(): bool
     {
         return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function isFailure(): bool
+    {
+        return false;
     }
 
     /**
