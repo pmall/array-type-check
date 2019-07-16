@@ -2,7 +2,7 @@
 
 use Quanta\ArrayTypeCheck\{
     BuiltInType,
-    TypeInterface,
+    TypeInterface
 };
 
 require_once __DIR__ . '/../.test/classes.php';

@@ -5,7 +5,7 @@ use function Eloquent\Phony\Kahlan\mock;
 use Quanta\ArrayTypeCheck\{
     Failure,
     TypeInterface,
-    ResultInterface,
+    ResultInterface
 };
 
 require_once __DIR__ . '/../.test/classes.php';

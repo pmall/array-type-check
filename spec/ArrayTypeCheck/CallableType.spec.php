@@ -2,7 +2,7 @@
 
 use Quanta\ArrayTypeCheck\{
     CallableType,
-    TypeInterface,
+    TypeInterface
 };
 
 describe('CallableType', function () {

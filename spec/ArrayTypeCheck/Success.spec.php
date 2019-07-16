@@ -2,7 +2,7 @@
 
 use Quanta\ArrayTypeCheck\{
     Success,
-    ResultInterface,
+    ResultInterface
 };
 
 describe('Success', function () {

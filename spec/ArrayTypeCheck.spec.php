@@ -9,7 +9,7 @@ use Quanta\ArrayTypeCheck\{
     CustomType,
     BuiltInType,
     CallableType,
-    TypeInterface,
+    TypeInterface
 };
 
 require_once __DIR__ . '/.test/classes.php';

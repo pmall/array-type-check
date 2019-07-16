@@ -11,7 +11,7 @@ use Quanta\ArrayTypeCheck\{
     BuiltInType,
     CallableType,
     TypeInterface,
-    ResultInterface,
+    ResultInterface
 };
 
 final class ArrayTypeCheck
